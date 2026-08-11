@@ -8,7 +8,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Initialize Lenis
     const lenis = new Lenis({
-      duration: 1.2, // Controls the speed of the scroll
+      duration: 1.2, 
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing function
       orientation: "vertical",
       gestureOrientation: "vertical",
@@ -17,7 +17,6 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       touchMultiplier: 2,
     });
 
-    // Sync Lenis scroll with requestAnimationFrame
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -25,7 +24,6 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     requestAnimationFrame(raf);
 
-    // Cleanup function when component unmounts
     return () => {
       lenis.destroy();
     };
