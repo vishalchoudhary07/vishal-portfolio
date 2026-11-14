@@ -1,8 +1,10 @@
+// src/components/Projects.tsx
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import React, { useRef, useState } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,23 +15,27 @@ const projects = [
     title: "Context-Aware",
     titleAccent: "Firewall.",
     description:
-      "A Java-based firewall system that captures network packets and evaluates them using contextual information before deciding whether traffic should be allowed or blocked.",
-    tech: ["Java", "Pcap4J"],
-    accent: "#ED4059",
+      "A Java-based packet inspection firewall that captures live network traffic via Pcap4J and evaluates protocol context before allowing or blocking packets.",
+    tech: ["Java", "Pcap4J", "Packet Analysis", "Security Rules"],
+    accent: "#ed4059",
     note: "PACKETS → CONTEXT → DECISION",
-    noteText: "Security should understand what is happening, not only what is arriving.",
+    noteText:
+      "Security should evaluate application context, not just static port numbers.",
+    github: "https://github.com/vishalchoudhary07/Centralized-Application---Context-Aware-Firewall",
   },
   {
     number: "02",
-    category: "AI / POST OFFICE SEARCH",
+    category: "AI / GEOSPATIAL SEARCH",
     title: "AI-Powered",
     titleAccent: "Post Office Search.",
     description:
-      "A hybrid semantic and geospatial retrieval system designed to identify the most relevant Indian post office from natural-language queries.",
+      "A hybrid semantic and geospatial retrieval engine built to resolve ambiguous natural-language queries to exact Indian post offices.",
     tech: ["FastAPI", "PostgreSQL", "PostGIS", "Sentence Transformers"],
-    accent: "#4D59E3",
-    note: "SEMANTIC ≠ KEYWORD",
-    noteText: "Understand intent. Then use geography to make the result useful.",
+    accent: "#4d59e3",
+    note: "SEMANTIC + GEOSPATIAL",
+    noteText:
+      "Vector embeddings capture intent; PostGIS spatial indexing grounds it in reality.",
+    github: "https://github.com/vishalchoudhary07/AI-Powered-Delivery-Post-Office-Identification--DPO-System",
   },
   {
     number: "03",
@@ -37,529 +43,576 @@ const projects = [
     title: "Algorithms,",
     titleAccent: "made visible.",
     description:
-      "An interactive sorting visualization built with JavaScript and HTML5 Canvas, designed to make algorithms understandable through motion.",
-    tech: ["JavaScript", "HTML5 Canvas"],
-    accent: "#C6E354",
-    note: "VISUALIZE THE ALGORITHM",
-    noteText: "Let people understand what the algorithm is actually doing.",
+      "An interactive sorting and algorithm sandbox built with JavaScript and HTML5 Canvas to make time complexity and array mutations tangible.",
+    tech: ["JavaScript", "HTML5 Canvas", "Data Structures"],
+    accent: "#c8ff3d",
+    note: "INTERACTIVE SANDBOX",
+    noteText:
+      "Click the algorithm pills or press RUN in the panel to test the live visualizer.",
+    github: "https://github.com/vishalchoudhary07/sorting-visualizer",
   },
 ];
+
+/**
+ * Magnetic Button following cursor with elastic recoil
+ */
+function MagneticSourceButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  const buttonRef = useRef<HTMLAnchorElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = buttonRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - (rect.left + rect.width / 2);
+    const y = e.clientY - (rect.top + rect.height / 2);
+    const moveX = (x / (rect.width / 2)) * 10;
+    const moveY = (y / (rect.height / 2)) * 10;
+
+    gsap.to(el, {
+      x: moveX,
+      y: moveY,
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    const el = buttonRef.current;
+    if (!el) return;
+    gsap.to(el, {
+      x: 0,
+      y: 0,
+      duration: 0.7,
+      ease: "elastic.out(1, 0.4)",
+      overwrite: "auto",
+    });
+  };
+
+  return (
+    <a
+      ref={buttonRef}
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="group flex items-center gap-3 rounded-full bg-[#f2f0e9] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-[#0a0a0a] transition-colors duration-300 hover:bg-[#c8ff3d]"
+    >
+      {children}
+    </a>
+  );
+}
+
+/**
+ * Interactive Module Card with perspective tilt + border glow
+ */
+function InteractiveCard({
+  accent,
+  number,
+  children,
+}: {
+  accent: string;
+  number: string;
+  children: React.ReactNode;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Subtle 3-5 degrees tilt
+    const rotateX = -((y - centerY) / centerY) * 4;
+    const rotateY = ((x - centerX) / centerX) * 4;
+
+    gsap.to(el, {
+      rotateX,
+      rotateY,
+      transformPerspective: 1000,
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    setIsHovered(false);
+    gsap.to(el, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.6,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="interactive-card relative min-h-[380px] overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#111111]/90 p-6 transition-shadow duration-500 sm:p-8 md:min-h-[440px]"
+      style={{
+        transformStyle: "preserve-3d",
+        boxShadow: isHovered
+          ? `0 20px 45px -15px ${accent}30, 0 0 25px 0 ${accent}20`
+          : "0 10px 30px -10px rgba(0,0,0,0.5)",
+        borderColor: isHovered ? `${accent}60` : "rgba(255,255,255,0.1)",
+      }}
+    >
+      {/* Top Bar */}
+      <div className="mb-6 flex items-center justify-between border-b border-white/[0.07] pb-4">
+        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
+          {"INTERACTIVE_MODULE // "}
+          {number}
+        </span>
+        <span
+          className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em]"
+          style={{ color: accent }}
+        >
+          <span className="relative flex h-2 w-2 items-center justify-center">
+            <span
+              className="absolute h-full w-full animate-ping rounded-full opacity-75"
+              style={{ backgroundColor: accent }}
+            />
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                backgroundColor: accent,
+                boxShadow: `0 0 8px ${accent}`,
+              }}
+            />
+          </span>
+          ● LIVE
+        </span>
+      </div>
+
+      {children}
+    </div>
+  );
+}
 
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+  const cursorFollowerRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    const progress = progressRef.current;
-    const counter = counterRef.current;
+  const [cursorAccent, setCursorAccent] = useState("#c8ff3d");
 
-    if (!section || !track || !progress || !counter) return;
+  // Floating Cursor Following handlers
+  const handlePanelMouseMove = (e: React.MouseEvent, accent: string) => {
+    if (!cursorFollowerRef.current) return;
+    setCursorAccent(accent);
+    gsap.to(cursorFollowerRef.current, {
+      x: e.clientX,
+      y: e.clientY,
+      scale: 1,
+      opacity: 1,
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
 
-    const ctx = gsap.context(() => {
+  const handlePanelMouseLeave = () => {
+    if (!cursorFollowerRef.current) return;
+    gsap.to(cursorFollowerRef.current, {
+      scale: 0,
+      opacity: 0,
+      duration: 0.25,
+      ease: "power2.in",
+      overwrite: "auto",
+    });
+  };
+
+  useGSAP(
+    () => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      const progress = progressRef.current;
+      const counter = counterRef.current;
+
+      if (!section || !track) return;
+
+      // Initialize cursor follower centering
+      if (cursorFollowerRef.current) {
+        gsap.set(cursorFollowerRef.current, {
+          xPercent: -50,
+          yPercent: -50,
+          scale: 0,
+          opacity: 0,
+        });
+      }
+
       const panels = gsap.utils.toArray<HTMLElement>(".project-panel");
+      const watermarks = gsap.utils.toArray<HTMLElement>(".project-watermark");
+      const cards = gsap.utils.toArray<HTMLElement>(".interactive-card");
 
-      /*
-       * ============================================================
-       * HORIZONTAL PROJECT SCROLL
-       * ============================================================
-       */
+      // Subtle floating effect on interactive cards
+      cards.forEach((card, idx) => {
+        gsap.to(card, {
+          y: -8,
+          duration: 3 + idx * 0.4,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: idx * 0.3,
+        });
+      });
 
-      const horizontalDistance =
-        () => window.innerWidth * (panels.length - 1);
+      const mm = gsap.matchMedia();
 
-      const horizontalTween = gsap.to(track, {
-        x: () => -horizontalDistance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${horizontalDistance()}`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
+      // DESKTOP ONLY: Pinned Horizontal Scroll
+      mm.add("(min-width: 1024px)", () => {
+        let lastActiveIndex = -1;
+        const getHorizontalDistance = () =>
+          window.innerWidth * (panels.length - 1);
 
-          onUpdate: (self) => {
-            const progressValue = self.progress;
+        gsap.to(track, {
+          x: () => -getHorizontalDistance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: () => `+=${getHorizontalDistance()}`,
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const p = self.progress;
+              if (progress) {
+                gsap.set(progress, {
+                  scaleX: p,
+                  transformOrigin: "left center",
+                });
+              }
 
-            /*
-             * Progress line
-             */
-            gsap.set(progress, {
-              scaleX: progressValue,
-              transformOrigin: "left center",
-            });
+              const activeIndex = Math.min(
+                panels.length - 1,
+                Math.floor(p * panels.length)
+              );
 
-            /*
-             * Project counter
-             *
-             * 0.00 - 0.33 => 01
-             * 0.33 - 0.66 => 02
-             * 0.66 - 1.00 => 03
-             */
-            const currentProject = Math.min(
-              projects.length,
-              Math.floor(progressValue * projects.length) + 1
-            );
+              if (activeIndex !== lastActiveIndex) {
+                lastActiveIndex = activeIndex;
+                const nextText = `0${activeIndex + 1}`;
 
-            counter.textContent = `0${currentProject}`;
+                // Sliding counter transition
+                if (counter) {
+                  gsap.timeline()
+                    .to(counter, {
+                      yPercent: -100,
+                      opacity: 0,
+                      duration: 0.16,
+                      ease: "power2.in",
+                      onComplete: () => {
+                        counter.textContent = nextText;
+                      },
+                    })
+                    .set(counter, { yPercent: 100, opacity: 0 })
+                    .to(counter, {
+                      yPercent: 0,
+                      opacity: 1,
+                      duration: 0.22,
+                      ease: "power3.out",
+                    });
+                }
 
-            /*
-             * Active panel treatment
-             */
-            panels.forEach((panel, index) => {
-              const panelStart = index / panels.length;
-              const panelEnd = (index + 1) / panels.length;
-
-              const active =
-                progressValue >= panelStart &&
-                progressValue < panelEnd;
-
-              gsap.to(panel, {
-                opacity: active ? 1 : 0.72,
-                duration: 0.25,
-                overwrite: true,
-              });
-            });
+                panels.forEach((panel, idx) => {
+                  gsap.to(panel, {
+                    opacity: idx === activeIndex ? 1 : 0.45,
+                    duration: 0.3,
+                    overwrite: "auto",
+                  });
+                });
+              }
+            },
           },
-        },
+        });
+
+        // Parallax on watermarks during horizontal scrub
+        watermarks.forEach((wm) => {
+          gsap.fromTo(
+            wm,
+            { x: 50 },
+            {
+              x: -50,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top top",
+                end: () => `+=${getHorizontalDistance()}`,
+                scrub: 1,
+              },
+            }
+          );
+        });
       });
 
-      /*
-       * ============================================================
-       * PROJECT CONTENT ENTRANCE
-       * ============================================================
-       */
+      // MOBILE & TABLET: Enhanced Vertical Reveal
+      mm.add("(max-width: 1023px)", () => {
+        panels.forEach((panel) => {
+          const category = panel.querySelector(".project-category");
+          const title = panel.querySelector(".project-title");
+          const desc = panel.querySelector(".project-desc");
+          const pills = panel.querySelectorAll(".project-pill");
+          const interactiveModule = panel.querySelector(".interactive-card");
+          const watermark = panel.querySelector(".project-watermark");
 
-      panels.forEach((panel) => {
-        const title = panel.querySelector(".project-title");
-        const description = panel.querySelector(".project-description");
-        const meta = panel.querySelector(".project-meta");
-        const visual = panel.querySelector(".project-visual");
-        const note = panel.querySelector(".project-note");
-        const buttons = panel.querySelector(".project-buttons");
-
-        if (title) {
-          gsap.fromTo(
-            title,
-            {
-              y: 80,
-              opacity: 0,
-            },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 1.1,
-              ease: "power4.out",
+          // Watermark scrub parallax on mobile
+          if (watermark) {
+            gsap.to(watermark, {
+              y: -50,
+              ease: "none",
               scrollTrigger: {
                 trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 75%",
-                toggleActions: "play none none reverse",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1,
               },
-            }
-          );
-        }
+            });
+          }
 
-        if (description) {
-          gsap.fromTo(
-            description,
-            {
-              y: 35,
-              opacity: 0,
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 80%",
+              once: true,
             },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.8,
-              delay: 0.12,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 70%",
-                toggleActions: "play none none reverse",
-              },
-            }
-          );
-        }
+          });
 
-        if (meta) {
-          gsap.fromTo(
-            meta,
-            {
-              y: 25,
-              opacity: 0,
-            },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.7,
-              delay: 0.2,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 68%",
-                toggleActions: "play none none reverse",
-              },
-            }
-          );
-        }
+          // 1. Category label and dot slide in from left
+          if (category) {
+            tl.fromTo(
+              category,
+              { opacity: 0, x: -30 },
+              { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }
+            );
+          }
 
-        if (visual) {
-          gsap.fromTo(
-            visual,
-            {
-              x: 100,
-              opacity: 0,
-              scale: 0.94,
-            },
-            {
-              x: 0,
-              opacity: 1,
-              scale: 1,
-              duration: 1.1,
-              delay: 0.1,
-              ease: "power4.out",
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 80%",
-                toggleActions: "play none none reverse",
+          // 2. Title uses clip-path reveal (inset from bottom)
+          if (title) {
+            tl.fromTo(
+              title,
+              { clipPath: "inset(100% 0 0 0)", y: 30, opacity: 0 },
+              {
+                clipPath: "inset(0% 0 0 0)",
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power4.out",
               },
-            }
-          );
-        }
+              "-=0.35"
+            );
+          }
 
-        if (note) {
-          gsap.fromTo(
-            note,
-            {
-              y: 30,
-              opacity: 0,
-              rotate: 2,
-            },
-            {
-              y: 0,
-              opacity: 1,
-              rotate: 0,
-              duration: 0.9,
-              delay: 0.35,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 65%",
-                toggleActions: "play none none reverse",
+          // 3. Description fades in with blur
+          if (desc) {
+            tl.fromTo(
+              desc,
+              { opacity: 0, filter: "blur(8px)", y: 15 },
+              {
+                opacity: 1,
+                filter: "blur(0px)",
+                y: 0,
+                duration: 0.7,
+                ease: "power3.out",
               },
-            }
-          );
-        }
+              "-=0.35"
+            );
+          }
 
-        if (buttons) {
-          gsap.fromTo(
-            buttons,
-            {
-              y: 20,
-              opacity: 0,
-            },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.7,
-              delay: 0.3,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: panel,
-                containerAnimation: horizontalTween,
-                start: "left 70%",
-                toggleActions: "play none none reverse",
+          // 4. Tech pills pop in with stagger
+          if (pills.length > 0) {
+            tl.fromTo(
+              pills,
+              { opacity: 0, scale: 0.8, y: 10 },
+              {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.04,
+                ease: "elastic.out(1, 0.5)",
               },
-            }
-          );
-        }
+              "-=0.25"
+            );
+          }
+
+          // 5. Interactive module scales up from 0.95
+          if (interactiveModule) {
+            tl.fromTo(
+              interactiveModule,
+              { opacity: 0, scale: 0.95, y: 30 },
+              {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out",
+              },
+              "-=0.35"
+            );
+          }
+        });
       });
-    }, section);
 
-    ScrollTrigger.refresh();
-
-    return () => {
-      ctx.revert();
-    };
-  }, []);
+      return () => mm.revert();
+    },
+    { scope: sectionRef }
+  );
 
   return (
     <section
       ref={sectionRef}
       id="work"
-      className="relative h-screen w-full overflow-hidden bg-[#0a0a0a] text-[#F6F6F6]"
+      className="bg-tech-grid relative min-h-screen w-full overflow-hidden border-t border-white/[0.08] bg-[#0a0a0a] text-[#f2f0e9] lg:h-screen"
     >
-      {/* ============================================================
-          BACKGROUND GRID
-      ============================================================ */}
-
+      {/* 1. CURSOR "VIEW" TEXT FOLLOWER */}
       <div
+        ref={cursorFollowerRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0"
+        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-20 w-20 items-center justify-center rounded-full shadow-2xl backdrop-blur-sm lg:flex"
+        style={{
+          backgroundColor: cursorAccent,
+          boxShadow: `0 0 35px ${cursorAccent}66`,
+        }}
       >
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, #F6F6F6 1px, transparent 1px),
-              linear-gradient(to bottom, #F6F6F6 1px, transparent 1px)
-            `,
-            backgroundSize: "84px 84px",
-          }}
-        />
-
-        <div className="absolute right-[-250px] top-[-250px] h-[650px] w-[650px] rounded-full bg-[#C6E354]/[0.025] blur-[150px]" />
-
-        <div className="absolute bottom-[-300px] left-[25%] h-[600px] w-[600px] rounded-full bg-[#4D59E3]/[0.025] blur-[150px]" />
-      </div>
-
-      {/* ============================================================
-          TOP SECTION LABEL
-      ============================================================ */}
-
-      <div className="absolute left-6 right-6 top-7 z-30 flex items-center justify-between md:left-10 md:right-10 lg:left-14 lg:right-14">
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/30">
-            02
-          </span>
-
-          <span className="h-px w-10 bg-white/15" />
-
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/30">
-            Selected Work
-          </span>
-        </div>
-
-        <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/20">
-          Scroll to explore →
+        <span className="font-mono text-xs font-black tracking-widest text-[#0a0a0a]">
+          VIEW →
         </span>
       </div>
 
-      {/* ============================================================
-          HORIZONTAL TRACK
-      ============================================================ */}
+      {/* Top Section Header */}
+      <div className="relative z-30 mx-auto flex max-w-[1500px] items-center justify-between px-6 pt-20 md:px-10 lg:absolute lg:left-0 lg:right-0 lg:top-20 lg:px-14 lg:pt-0">
+        <div className="flex items-center gap-4">
+          <span className="font-mono text-xs font-medium tracking-[0.3em] text-[#c8ff3d]">
+            02 / 04
+          </span>
+          <span className="h-px w-8 bg-white/15" />
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+            SELECTED WORK
+          </span>
+        </div>
 
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.25em] text-white/30 lg:block">
+          SCROLL TO EXPLORE →
+        </span>
+      </div>
+
+      {/* Track: Vertical Stack on Mobile, 300vw Horizontal Track on Desktop */}
       <div
         ref={trackRef}
-        className="relative z-10 flex h-full"
-        style={{
-          width: "300vw",
-        }}
+        className="relative z-10 flex flex-col gap-20 py-12 lg:h-full lg:w-[300vw] lg:flex-row lg:gap-0 lg:py-0"
       >
         {projects.map((project, index) => (
           <article
             key={project.number}
-            className="project-panel relative flex h-screen w-screen shrink-0 items-center overflow-hidden"
-            style={{ width: "100vw" }}
+            onMouseMove={(e) => handlePanelMouseMove(e, project.accent)}
+            onMouseLeave={handlePanelMouseLeave}
+            className="project-panel relative flex w-full shrink-0 items-center lg:h-screen lg:w-screen"
           >
-            {/* ======================================================
-                LARGE PROJECT NUMBER
-            ====================================================== */}
-
+            {/* 2. Giant Watermark Number with Parallax */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -bottom-10 left-5 font-black leading-none tracking-[-0.09em] text-white/[0.025] md:left-10 lg:left-14"
-              style={{
-                fontSize: "clamp(12rem, 28vw, 34rem)",
-              }}
+              className="project-watermark pointer-events-none absolute -bottom-10 left-5 font-black leading-none tracking-[-0.09em] text-white/[0.025] lg:left-14"
+              style={{ fontSize: "clamp(12rem, 26vw, 30rem)" }}
             >
               {project.number}
             </div>
 
-            {/* ======================================================
-                MAIN CONTENT
-            ====================================================== */}
-
-            <div className="relative mx-auto flex w-full max-w-[1500px] flex-col justify-center px-6 pt-12 md:px-10 lg:px-14">
-              <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
-                {/* ==================================================
-                    LEFT
-                ================================================== */}
-
+            <div className="relative mx-auto flex w-full max-w-[1500px] flex-col justify-center px-6 md:px-10 lg:px-14 lg:pt-10">
+              <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
+                {/* Left Column: Project Details */}
                 <div className="relative z-20">
-                  {/* Category */}
-
-                  <div className="project-meta mb-6 flex items-center gap-3">
+                  <div className="project-category mb-5 flex items-center gap-3">
                     <span
-                      className="h-1.5 w-1.5 rounded-full"
+                      className="h-2 w-2 rounded-full"
                       style={{
                         backgroundColor: project.accent,
-                        boxShadow: `0 0 14px ${project.accent}`,
+                        boxShadow: `0 0 12px ${project.accent}`,
                       }}
                     />
-
-                    <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/45">
-                      {project.category}
+                    <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/50">
+                      {project.number} {"//"} {project.category}
                     </span>
                   </div>
 
-                  {/* Title */}
-
-                  <h2
-                    className="project-title max-w-[720px] font-black leading-[0.86] tracking-[-0.075em]"
-                    style={{
-                      fontSize: "clamp(4rem, 7vw, 8.5rem)",
-                    }}
-                  >
-                    <span className="block text-[#F6F6F6]">
-                      {project.title}
-                    </span>
-
-                    <span
-                      className="block"
-                      style={{
-                        color: project.accent,
-                      }}
-                    >
+                  <h2 className="project-title max-w-[700px] text-[clamp(2.8rem,6vw,6.8rem)] font-black leading-[0.88] tracking-[-0.06em]">
+                    <span className="block text-[#f2f0e9]">{project.title}</span>
+                    <span className="block" style={{ color: project.accent }}>
                       {project.titleAccent}
                     </span>
                   </h2>
 
-                  {/* Description */}
-
-                  <p className="project-description mt-8 max-w-[600px] text-base leading-7 text-white/55 md:text-lg md:leading-8">
+                  <p className="project-desc mt-6 max-w-[580px] text-base leading-7 text-white/60 md:text-lg md:leading-8">
                     {project.description}
                   </p>
 
-                  {/* Tech */}
-
-                  <div className="project-meta mt-8 flex flex-wrap gap-2">
+                  {/* Tech Stack Pills */}
+                  <div className="mt-7 flex flex-wrap gap-2">
                     {project.tech.map((item) => (
                       <span
                         key={item}
-                        className="rounded-full border border-white/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/45"
+                        className="project-pill rounded-full border border-white/10 bg-white/[0.02] px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/55"
                       >
                         {item}
                       </span>
                     ))}
                   </div>
 
-                  {/* =================================================
-                      BUTTONS
-                      ONLY THIRD PROJECT HAS LIVE DEMO
-                  ================================================= */}
-
-                  {index === 2 && (
-                    <div className="project-buttons mt-9 flex flex-wrap gap-3">
-                      <a
-                        href="#"
-                        className="group flex items-center gap-4 rounded-full bg-[#F6F6F6] px-6 py-3.5 text-sm font-semibold text-[#0a0a0a] transition-all duration-300 hover:bg-[#C6E354]"
-                      >
-                        GitHub
-
-                        <span className="transition-transform duration-300 group-hover:translate-x-1">
-                          ↗
-                        </span>
-                      </a>
-
-                      <a
-                        href="#"
-                        className="group flex items-center gap-4 rounded-full border border-[#C6E354]/35 px-6 py-3.5 text-sm font-semibold text-[#C6E354] transition-all duration-300 hover:bg-[#C6E354] hover:text-[#0a0a0a]"
-                      >
-                        Live Demo
-
-                        <span className="transition-transform duration-300 group-hover:translate-x-1">
-                          ↗
-                        </span>
-                      </a>
-                    </div>
-                  )}
+                  {/* Action Links on Every Project */}
+                  <div className="mt-8 flex flex-wrap items-center gap-3">
+                    <MagneticSourceButton href={project.github}>
+                      Source Code
+                      <span className="transition-transform duration-300 group-hover:translate-x-1">
+                        ↗
+                      </span>
+                    </MagneticSourceButton>
+                  </div>
                 </div>
 
-                {/* ==================================================
-                    RIGHT VISUAL
-                ================================================== */}
-
+                {/* Right Column: Interactive System Schematic */}
                 <div className="relative z-10">
-                  <div
-                    className="project-visual relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-white/[0.025]"
-                    style={{
-                      minHeight: "clamp(330px, 42vw, 560px)",
-                    }}
-                  >
-                    {/* Accent glow */}
+                  <InteractiveCard accent={project.accent} number={project.number}>
+                    {index === 0 && <FirewallVisual accent={project.accent} />}
+                    {index === 1 && <PostOfficeVisual accent={project.accent} />}
+                    {index === 2 && <SortingVisual accent={project.accent} />}
+                  </InteractiveCard>
 
-                    <div
-                      className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full opacity-[0.08] blur-[100px]"
-                      style={{
-                        backgroundColor: project.accent,
-                      }}
+                  {/* Architectural Note */}
+                  <div className="mt-4 flex items-start gap-3 pl-2">
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: project.accent }}
                     />
-
-                    {/* Visual header */}
-
-                    <div className="absolute left-7 right-7 top-7 flex items-center justify-between">
-                      <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/30">
-                        SYSTEM / {project.number}
-                      </span>
-
-                      <span
-                        className="font-mono text-[9px] uppercase tracking-[0.2em]"
-                        style={{
-                          color: project.accent,
-                        }}
+                    <p className="font-mono text-[11px] text-white/40">
+                      <strong
+                        className="mr-2 uppercase tracking-wider"
+                        style={{ color: project.accent }}
                       >
-                        ● READY
-                      </span>
-                    </div>
-
-                    {/* ==============================================
-                        PROJECT-SPECIFIC VISUALS
-                    ============================================== */}
-
-                    {index === 0 && (
-                      <FirewallVisual accent={project.accent} />
-                    )}
-
-                    {index === 1 && (
-                      <PostOfficeVisual accent={project.accent} />
-                    )}
-
-                    {index === 2 && (
-                      <SortingVisual accent={project.accent} />
-                    )}
-                  </div>
-
-                  {/* =================================================
-                      FLOATING NOTE
-                  ================================================= */}
-
-                  <div
-                    className="project-note absolute -bottom-8 -left-5 hidden max-w-[260px] md:block lg:-left-14"
-                  >
-                    <div className="flex gap-4">
-                      <div
-                        className="mt-1 h-10 w-px shrink-0"
-                        style={{
-                          backgroundColor: project.accent,
-                        }}
-                      />
-
-                      <div>
-                        <p
-                          className="font-mono text-[9px] uppercase tracking-[0.2em]"
-                          style={{
-                            color: project.accent,
-                          }}
-                        >
-                          {project.note}
-                        </p>
-
-                        <p className="mt-2 text-xs leading-5 text-white/35">
-                          {project.noteText}
-                        </p>
-                      </div>
-                    </div>
+                        [{project.note}]
+                      </strong>
+                      {project.noteText}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -568,43 +621,30 @@ export default function Projects() {
         ))}
       </div>
 
-      {/* ============================================================
-          BOTTOM PROGRESS
-      ============================================================ */}
-
-      <div className="absolute bottom-7 left-6 right-6 z-30 md:left-10 md:right-10 lg:left-14 lg:right-14">
+      {/* 3. Desktop Bottom Progress Bar with Sliding Counter */}
+      <div className="absolute bottom-7 left-14 right-14 z-30 hidden lg:block">
         <div className="flex items-end justify-between">
-          <div className="flex items-center gap-4">
-            <span
-              ref={counterRef}
-              className="font-mono text-[11px] font-medium tracking-[0.2em] text-[#C6E354]"
-            >
-              01
-            </span>
-
-            <span className="font-mono text-[10px] tracking-[0.2em] text-white/20">
-              —
-            </span>
-
-            <span className="font-mono text-[11px] tracking-[0.2em] text-white/25">
-              03
-            </span>
+          <div className="flex items-center gap-3 font-mono text-xs tracking-[0.2em]">
+            <div className="relative h-5 w-7 overflow-hidden">
+              <span
+                ref={counterRef}
+                className="absolute inset-0 flex items-center justify-center font-bold text-[#c8ff3d]"
+              >
+                01
+              </span>
+            </div>
+            <span className="text-white/20">/</span>
+            <span className="text-white/35">03</span>
           </div>
-
-          <span className="hidden font-mono text-[9px] uppercase tracking-[0.25em] text-white/20 sm:block">
-            Selected projects
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/25">
+            INTERACTIVE SYSTEM PREVIEWS
           </span>
         </div>
-
-        {/* Progress line */}
 
         <div className="mt-3 h-px w-full bg-white/[0.08]">
           <div
             ref={progressRef}
-            className="h-full w-full scale-x-0"
-            style={{
-              backgroundColor: "#C6E354",
-            }}
+            className="h-full w-full scale-x-0 bg-[#c8ff3d]"
           />
         </div>
       </div>
@@ -613,206 +653,327 @@ export default function Projects() {
 }
 
 /* ==================================================================
-   FIREWALL VISUAL
+   01. INTERACTIVE FIREWALL PACKET MONITOR
 ================================================================== */
+const INITIAL_PACKETS = [
+  { id: 1, ip: "192.168.1.14", proto: "TCP :443", context: "TLS Handshake", status: "ALLOW" },
+  { id: 2, ip: "10.0.0.42", proto: "UDP :53", context: "DNS Tunneling Sig", status: "BLOCK" },
+  { id: 3, ip: "172.16.4.9", proto: "TCP :8080", context: "Auth Token Valid", status: "ALLOW" },
+  { id: 4, ip: "192.168.1.88", proto: "HTTP :80", context: "SQLi Payload", status: "BLOCK" },
+  { id: 5, ip: "10.24.1.105", proto: "SSH :22", context: "Brute Force Rate", status: "BLOCK" },
+];
 
 function FirewallVisual({ accent }: { accent: string }) {
+  const [filter, setFilter] = useState<"ALL" | "ALLOW" | "BLOCK">("ALL");
+
+  const filtered = INITIAL_PACKETS.filter((pkt) =>
+    filter === "ALL" ? true : pkt.status === filter
+  );
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center p-8 md:p-12">
-      <div className="relative w-full max-w-[520px]">
-        <div className="mb-8 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.2em] text-white/25">
-          <span>PACKET MONITOR</span>
-          <span style={{ color: accent }}>LIVE</span>
-        </div>
-
-        <div className="space-y-3">
-          {[
-            ["192.168.1.14", "TCP", "ALLOW"],
-            ["10.0.0.42", "UDP", "BLOCK"],
-            ["172.16.4.9", "TCP", "ALLOW"],
-            ["192.168.1.88", "HTTP", "BLOCK"],
-          ].map(([ip, protocol, status], i) => (
-            <div
-              key={ip}
-              className="flex items-center justify-between border-b border-white/[0.07] pb-3 font-mono text-[10px]"
+    <div className="flex flex-col justify-between">
+      <div className="mb-5 flex items-center justify-between">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+          FILTER STREAM:
+        </span>
+        <div className="flex gap-2">
+          {(["ALL", "ALLOW", "BLOCK"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setFilter(mode)}
+              className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.15em] transition-all"
+              style={{
+                borderColor:
+                  filter === mode ? accent : "rgba(255,255,255,0.1)",
+                backgroundColor:
+                  filter === mode ? `${accent}20` : "transparent",
+                color: filter === mode ? "#fff" : "rgba(255,255,255,0.45)",
+              }}
             >
-              <span className="text-white/45">{ip}</span>
-              <span className="text-white/20">{protocol}</span>
-
-              <span
-                style={{
-                  color: status === "BLOCK" ? accent : "#F6F6F6",
-                }}
-              >
-                {status}
-              </span>
-            </div>
+              {mode}
+            </button>
           ))}
         </div>
+      </div>
 
-        <div className="mt-10 flex items-center justify-between">
+      <div className="space-y-2.5">
+        {filtered.map((pkt) => (
           <div
-            className="h-px flex-1"
-            style={{
-              background: `linear-gradient(to right, ${accent}, transparent)`,
-            }}
-          />
+            key={pkt.id}
+            className="grid grid-cols-[1.1fr_0.8fr_1.2fr_auto] items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.015] px-3.5 py-2.5 font-mono text-[11px]"
+          >
+            <span className="text-white/75">{pkt.ip}</span>
+            <span className="text-white/35">{pkt.proto}</span>
+            <span className="truncate text-white/50">{pkt.context}</span>
+            <span
+              className="rounded px-2 py-0.5 text-[10px] font-bold"
+              style={{
+                color: pkt.status === "BLOCK" ? accent : "#c8ff3d",
+                backgroundColor:
+                  pkt.status === "BLOCK" ? `${accent}18` : "#c8ff3d18",
+              }}
+            >
+              {pkt.status}
+            </span>
+          </div>
+        ))}
+      </div>
 
-          <div
-            className="ml-4 h-2 w-2 rounded-full"
-            style={{
-              backgroundColor: accent,
-              boxShadow: `0 0 18px ${accent}`,
-            }}
-          />
-        </div>
-
-        <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-white/20">
-          CONTEXT ENGINE / DECISION LAYER
-        </div>
+      <div className="mt-6 flex items-center justify-between border-t border-white/[0.07] pt-4 font-mono text-[10px] text-white/30">
+        <span>PCAP4J_INTERFACE: eth0</span>
+        <span>SHOWING {filtered.length} / 5 PACKETS</span>
       </div>
     </div>
   );
 }
 
 /* ==================================================================
-   POST OFFICE VISUAL
+   02. INTERACTIVE AI POST OFFICE SEMANTIC SEARCH
 ================================================================== */
+const SAMPLE_QUERIES = [
+  {
+    label: "Airport Area",
+    query: "Post office near Hyderabad international airport",
+    results: [
+      { name: "Shamshabad S.O (501218)", dist: "4.2 km", score: "0.94" },
+      { name: "RGIA Airport B.O (500108)", dist: "0.8 km", score: "0.91" },
+      { name: "Rajendranagar S.O (500030)", dist: "11.5 km", score: "0.78" },
+    ],
+  },
+  {
+    label: "IT Corridor",
+    query: "Speed post center near HITEC City & Cyber Towers",
+    results: [
+      { name: "Madhapur S.O (500081)", dist: "1.1 km", score: "0.96" },
+      { name: "Gachibowli S.O (500032)", dist: "3.8 km", score: "0.89" },
+      { name: "Kondapur S.O (500084)", dist: "2.9 km", score: "0.84" },
+    ],
+  },
+  {
+    label: "Railway Hub",
+    query: "Main parcel booking office near Secunderabad station",
+    results: [
+      { name: "Secunderabad H.O (500003)", dist: "0.9 km", score: "0.97" },
+      { name: "MG Road S.O (500003)", dist: "1.6 km", score: "0.85" },
+      { name: "Begumpet S.O (500016)", dist: "4.4 km", score: "0.74" },
+    ],
+  },
+];
 
 function PostOfficeVisual({ accent }: { accent: string }) {
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const activeSample = SAMPLE_QUERIES[selectedIdx];
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center p-8 md:p-12">
-      <div className="w-full max-w-[540px]">
-        <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/25">
-          SEMANTIC RETRIEVAL
-        </div>
-
-        <div className="mt-8 rounded-2xl border border-white/[0.08] p-5">
-          <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-white/25">
-            QUERY
-          </span>
-
-          <p className="mt-3 text-sm text-white/70">
-            "Post office near Hyderabad airport"
-          </p>
-        </div>
-
-        <div className="my-7 flex items-center gap-3">
-          <div
-            className="h-px flex-1"
+    <div>
+      {/* Preset Query Selector */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">
+          TEST QUERY:
+        </span>
+        {SAMPLE_QUERIES.map((q, idx) => (
+          <button
+            key={q.label}
+            type="button"
+            onClick={() => setSelectedIdx(idx)}
+            className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] transition-all"
             style={{
-              backgroundColor: accent,
-              opacity: 0.5,
-            }}
-          />
-
-          <span
-            className="font-mono text-[9px]"
-            style={{
-              color: accent,
+              borderColor:
+                selectedIdx === idx ? accent : "rgba(255,255,255,0.1)",
+              backgroundColor:
+                selectedIdx === idx ? `${accent}25` : "transparent",
+              color: selectedIdx === idx ? "#fff" : "rgba(255,255,255,0.45)",
             }}
           >
-            HYBRID SCORE
-          </span>
-        </div>
+            {q.label}
+          </button>
+        ))}
+      </div>
 
-        <div className="space-y-3">
-          {[
-            ["Shamshabad S.O", "0.94"],
-            ["Rajendranagar S.O", "0.81"],
-            ["Gachibowli S.O", "0.73"],
-          ].map(([name, score], i) => (
-            <div
-              key={name}
-              className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3"
-            >
-              <span className="text-sm text-white/50">{name}</span>
+      {/* Active Natural Language Query Box */}
+      <div className="rounded-xl border border-white/10 bg-black/40 p-4">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
+          NATURAL LANGUAGE INPUT
+        </span>
+        <p className="mt-1.5 font-mono text-xs text-white/85">
+          &ldquo;{activeSample.query}&rdquo;
+        </p>
+      </div>
 
-              <span
-                className="font-mono text-xs"
-                style={{
-                  color: i === 0 ? accent : "rgba(246,246,246,0.35)",
-                }}
-              >
-                {score}
-              </span>
+      <div className="my-4 flex items-center gap-3">
+        <div
+          className="h-px flex-1"
+          style={{ backgroundColor: accent, opacity: 0.4 }}
+        />
+        <span
+          className="font-mono text-[9px] uppercase tracking-[0.2em]"
+          style={{ color: accent }}
+        >
+          COSINE SIMILARITY + POSTGIS ST_Distance
+        </span>
+      </div>
+
+      {/* Ranked Results */}
+      <div className="space-y-2.5">
+        {activeSample.results.map((item, i) => (
+          <div
+            key={item.name}
+            className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.015] px-4 py-2.5"
+          >
+            <div>
+              <p className="text-xs font-medium text-white/80">{item.name}</p>
+              <p className="font-mono text-[10px] text-white/35">
+                Radius: {item.dist}
+              </p>
             </div>
-          ))}
-        </div>
+            <span
+              className="rounded-md px-2.5 py-1 font-mono text-xs font-bold"
+              style={{
+                color: i === 0 ? "#fff" : "rgba(242,240,233,0.45)",
+                backgroundColor: i === 0 ? accent : "rgba(255,255,255,0.04)",
+              }}
+            >
+              {item.score}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
 /* ==================================================================
-   SORTING VISUAL
+   03. INTERACTIVE SORTING VISUALIZER SANDBOX
 ================================================================== */
+const ALGO_INFO: Record<string, { complexity: string; label: string }> = {
+  BUBBLE: { label: "BUBBLE SORT", complexity: "O(n²)" },
+  MERGE: { label: "MERGE SORT", complexity: "O(n log n)" },
+  QUICK: { label: "QUICK SORT", complexity: "O(n log n)" },
+  HEAP: { label: "HEAP SORT", complexity: "O(n log n)" },
+};
 
 function SortingVisual({ accent }: { accent: string }) {
-  const bars = [35, 48, 62, 44, 76, 91, 57, 83, 68, 100];
+  const [bars, setBars] = useState([64, 32, 88, 45, 96, 23, 74, 52, 81, 39]);
+  const [algo, setAlgo] = useState<"BUBBLE" | "MERGE" | "QUICK" | "HEAP">("MERGE");
+  const [activeIdx, setActiveIdx] = useState<number | null>(4);
+  const [isSorting, setIsSorting] = useState(false);
+
+  const shuffleBars = () => {
+    if (isSorting) return;
+    const randomBars = Array.from(
+      { length: 10 },
+      () => Math.floor(Math.random() * 75) + 20
+    );
+    setBars(randomBars);
+    setActiveIdx(null);
+  };
+
+  const runSortAnimation = () => {
+    if (isSorting) return;
+    setIsSorting(true);
+
+    const working = [...bars];
+    const snapshots: { arr: number[]; highlight: number }[] = [];
+
+    for (let i = 0; i < working.length; i++) {
+      for (let j = i + 1; j < working.length; j++) {
+        if (working[i] > working[j]) {
+          const temp = working[i];
+          working[i] = working[j];
+          working[j] = temp;
+          snapshots.push({ arr: [...working], highlight: j });
+        }
+      }
+    }
+
+    if (snapshots.length === 0) {
+      const fresh = [78, 30, 92, 41, 60, 24, 85, 50, 99, 36];
+      setBars(fresh);
+      setIsSorting(false);
+      return;
+    }
+
+    snapshots.forEach((snap, idx) => {
+      setTimeout(() => {
+        setBars(snap.arr);
+        setActiveIdx(snap.highlight);
+        if (idx === snapshots.length - 1) {
+          setIsSorting(false);
+          setActiveIdx(working.length - 1);
+        }
+      }, idx * 75);
+    });
+  };
 
   return (
-    <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
-      <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.2em]">
-        <span className="text-white/30">SORTING VISUALIZER</span>
-
-        <span style={{ color: accent }}>READY</span>
-      </div>
-
-      <div className="mt-12 flex h-[190px] items-end gap-2 border-b border-white/10 px-2">
+    <div className="flex flex-col justify-between">
+      {/* Bars Canvas */}
+      <div className="flex h-[150px] items-end gap-2 border-b border-white/10 px-2 pt-4">
         {bars.map((height, index) => (
           <div
             key={index}
-            className="flex-1 rounded-t-[5px] transition-all duration-500"
+            className="flex-1 rounded-t-[4px] transition-all duration-150"
             style={{
               height: `${height}%`,
               backgroundColor:
-                index === 5
-                  ? accent
-                  : "rgba(246,246,246,0.72)",
+                index === activeIdx ? accent : "rgba(242,240,233,0.7)",
             }}
           />
         ))}
       </div>
 
-      <div className="mt-7 flex flex-wrap gap-2">
-        {["BUBBLE", "MERGE", "QUICK", "HEAP"].map((item, index) => (
-          <span
-            key={item}
-            className="rounded-full border px-4 py-2 font-mono text-[9px] tracking-[0.15em]"
-            style={{
-              borderColor:
-                index === 1 ? `${accent}80` : "rgba(246,246,246,0.1)",
-              color:
-                index === 1 ? accent : "rgba(246,246,246,0.35)",
-            }}
-          >
-            [{item}]
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-7 grid grid-cols-2 gap-6 border-t border-white/[0.08] pt-5 font-mono text-[9px] uppercase tracking-[0.15em]">
-        <div>
-          <span className="text-white/20">Algorithm</span>
-          <p className="mt-2 text-white/60">MERGE SORT</p>
+      {/* Clickable Algorithm Selector Pills */}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1.5">
+          {(["BUBBLE", "MERGE", "QUICK", "HEAP"] as const).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setAlgo(item)}
+              className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.15em] transition-all"
+              style={{
+                borderColor:
+                  algo === item ? accent : "rgba(242,240,233,0.12)",
+                color: algo === item ? accent : "rgba(242,240,233,0.45)",
+                backgroundColor:
+                  algo === item ? `${accent}15` : "transparent",
+              }}
+            >
+              [{item}]
+            </button>
+          ))}
         </div>
 
-        <div>
-          <span className="text-white/20">Elements</span>
-          <p className="mt-2 text-white/60">10</p>
-        </div>
+        <span className="font-mono text-[10px] text-white/40">
+          TIME: <strong className="text-white/80">{ALGO_INFO[algo].complexity}</strong>
+        </span>
       </div>
 
-      <div
-        className="mt-6 flex items-center justify-center rounded-full border py-3 font-mono text-xs font-medium tracking-[0.2em]"
-        style={{
-          borderColor: `${accent}70`,
-          color: accent,
-          backgroundColor: `${accent}08`,
-        }}
-      >
-        RUN →
+      {/* Interactive Controls */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={shuffleBars}
+          disabled={isSorting}
+          className="cursor-pointer rounded-full border border-white/15 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-white/65 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
+        >
+          SHUFFLE ↻
+        </button>
+
+        <button
+          type="button"
+          onClick={runSortAnimation}
+          disabled={isSorting}
+          className="cursor-pointer rounded-full border py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:brightness-110 disabled:opacity-50"
+          style={{
+            borderColor: accent,
+            backgroundColor: accent,
+            color: "#0a0a0a",
+          }}
+        >
+          {isSorting ? "SORTING..." : "RUN SORT →"}
+        </button>
       </div>
     </div>
   );

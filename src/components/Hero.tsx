@@ -1,425 +1,543 @@
+// src/components/Hero.tsx
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+const NAV_LINKS = [
+  { num: "01", label: "About", href: "#about" },
+  { num: "02", label: "Work", href: "#work" },
+  { num: "03", label: "Stack", href: "#stack" },
+  { num: "04", label: "Contact", href: "#contact" },
+];
+
+/**
+ * Text scramble animation hook.
+ * Rapidly cycles through tech symbols before resolving character-by-character.
+ */
+function useTextScramble(text: string, trigger: boolean, delay: number = 0) {
+  const [display, setDisplay] = useState(text);
+  const chars = "!<>-_\\/[]{}=+*^?#_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  useEffect(() => {
+    if (!trigger) return;
+    let frame = 0;
+    const totalFrames = Math.max(text.length * 6, 60);
+    let rafId: number;
+    let isResolving = false;
+
+    // Immediately cycle random characters while waiting for line resolve delay
+    const cyclePreResolve = () => {
+      let output = "";
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] === " ") {
+          output += " ";
+        } else {
+          output += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      setDisplay(output);
+      if (!isResolving) {
+        rafId = requestAnimationFrame(cyclePreResolve);
+      }
+    };
+    rafId = requestAnimationFrame(cyclePreResolve);
+
+    const timeout = setTimeout(() => {
+      isResolving = true;
+      const update = () => {
+        let output = "";
+        const progress = frame / totalFrames;
+        const resolvedCount = Math.floor(progress * text.length);
+
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === " ") {
+            output += " ";
+            continue;
+          }
+          if (i < resolvedCount) {
+            output += text[i];
+          } else {
+            output += chars[Math.floor(Math.random() * chars.length)];
+          }
+        }
+
+        setDisplay(output);
+        frame++;
+        if (frame <= totalFrames) {
+          rafId = requestAnimationFrame(update);
+        } else {
+          setDisplay(text);
+        }
+      };
+      rafId = requestAnimationFrame(update);
+    }, delay);
+
+    return () => {
+      clearTimeout(timeout);
+      cancelAnimationFrame(rafId);
+    };
+  }, [trigger, text, delay]);
+
+  return display;
+}
+
+/**
+ * Magnetic button wrapper for CTA links.
+ * Gently pulls towards the cursor on hover and springs back on leave.
+ */
+interface MagneticButtonProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: React.ReactNode;
+}
+
+function MagneticButton({
+  children,
+  className = "",
+  ...props
+}: MagneticButtonProps) {
+  const ref = useRef<HTMLAnchorElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    gsap.to(el, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
+  };
+
+  const handleMouseLeave = () => {
+    if (!ref.current) return;
+    gsap.to(ref.current, {
+      x: 0,
+      y: 0,
+      duration: 0.5,
+      ease: "elastic.out(1, 0.4)",
+    });
+  };
+
+  return (
+    <a
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+}
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrambleTrigger, setScrambleTrigger] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [activeSection, setActiveSection] = useState("top");
+  const [scrolled, setScrolled] = useState(false);
 
-  useLayoutEffect(() => {
-    const hero = heroRef.current;
+  // Trigger text scramble shortly after mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setScrambleTrigger(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
-    if (!hero) return;
+  // Text scramble states for headline lines
+  const line1Text = useTextScramble("I BUILD", scrambleTrigger, 0);
+  const line2Text = useTextScramble("SYSTEMS.", scrambleTrigger, 150);
+  const line3Text = useTextScramble("THAT MAKE", scrambleTrigger, 300);
+  const line4Text = useTextScramble("SENSE.", scrambleTrigger, 450);
 
-    const ctx = gsap.context(() => {
-      const nav = hero.querySelector("[data-hero-nav]");
-      const label = hero.querySelector("[data-hero-label]");
-      const titleLines = hero.querySelectorAll("[data-hero-line]");
-      const description = hero.querySelector("[data-hero-description]");
-      const ctas = hero.querySelectorAll("[data-hero-cta]");
-      const bottomBar = hero.querySelector("[data-hero-bottom]");
-      const marker = hero.querySelector("[data-tech-marker]");
-
-      const tl = gsap.timeline({
-        defaults: {
-          ease: "power3.out",
-        },
+  // Parallax mouse tracking for ambient glow backgrounds
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 2,
+        y: (e.clientY / window.innerHeight - 0.5) * 2,
       });
+    };
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
-      // Initial states
-      gsap.set(
-        [
-          nav,
-          label,
-          description,
-          bottomBar,
-          marker,
-          ...Array.from(ctas),
-        ].filter(Boolean),
-        {
-          opacity: 0,
-          y: 20,
-        }
-      );
-
-      gsap.set(titleLines, {
-        opacity: 0,
-        y: 70,
-        rotateX: -20,
-        transformOrigin: "50% 100%",
-      });
-
-      // Navigation
-      if (nav) {
-        tl.to(nav, {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-        });
+  // Scroll detection & section tracking with ScrollTrigger
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 100);
+      if (window.scrollY < 200) {
+        setActiveSection("top");
       }
+    };
 
-      // Small label
-      if (label) {
-        tl.to(
-          label,
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    const sections = ["about", "work", "stack", "contact"];
+    const triggers: ScrollTrigger[] = [];
+
+    const timer = setTimeout(() => {
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          const st = ScrollTrigger.create({
+            trigger: el,
+            start: "top center",
+            end: "bottom center",
+            onEnter: () => setActiveSection(id),
+            onEnterBack: () => setActiveSection(id),
+          });
+          triggers.push(st);
+        }
+      });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+      triggers.forEach((st) => st.kill());
+    };
+  }, []);
+
+  // Choreographed GSAP entrance animation
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      // Initial positions and opacity
+      gsap.set("[data-hero-nav]", { opacity: 0, y: -20 });
+      gsap.set("[data-hero-label]", { opacity: 0, x: -30 });
+      gsap.set("[data-tech-marker]", { opacity: 0, x: 40 });
+      gsap.set("[data-hero-description]", {
+        opacity: 0,
+        y: 20,
+        filter: "blur(8px)",
+      });
+      gsap.set("[data-hero-cta]", { opacity: 0, scale: 0.8, y: 15 });
+      gsap.set("[data-hero-bottom]", { opacity: 0, y: 30 });
+
+      // Sequence
+      tl.to("[data-hero-nav]", {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: "power2.out",
+      })
+        .to("[data-hero-label]", { opacity: 1, x: 0, duration: 0.6 }, "-=0.3")
+        .to("[data-tech-marker]", { opacity: 1, x: 0, duration: 0.7 }, "-=0.4")
+        .to(
+          "[data-hero-description]",
           {
             opacity: 1,
             y: 0,
-            duration: 0.6,
+            filter: "blur(0px)",
+            duration: 0.8,
           },
           "-=0.4"
-        );
-      }
-
-      // Main hero text
-      if (titleLines.length) {
-        tl.to(
-          titleLines,
+        )
+        .to(
+          "[data-hero-cta]",
           {
             opacity: 1,
+            scale: 1,
             y: 0,
-            rotateX: 0,
-            duration: 1,
+            duration: 0.7,
             stagger: 0.12,
-            ease: "power4.out",
+            ease: "elastic.out(1, 0.5)",
           },
-          "-=0.2"
-        );
-      }
+          "-=0.4"
+        )
+        .to("[data-hero-bottom]", { opacity: 1, y: 0, duration: 0.6 }, "-=0.3");
 
-      // Technical marker
-      if (marker) {
-        tl.to(
-          marker,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-          },
-          "-=0.65"
-        );
-      }
-
-      // Description
-      if (description) {
-        tl.to(
-          description,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-          },
-          "-=0.45"
-        );
-      }
-
-      // Buttons
-      if (ctas.length) {
-        tl.to(
-          ctas,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            stagger: 0.1,
-          },
-          "-=0.5"
-        );
-      }
-
-      // Bottom bar
-      if (bottomBar) {
-        tl.to(
-          bottomBar,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-          },
-          "-=0.35"
-        );
-      }
-    }, hero);
-
-    return () => ctx.revert();
-  }, []);
+      // Repeating bounce animation for scroll indicator
+      gsap.to("[data-scroll-indicator]", {
+        y: 8,
+        duration: 1.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
+      });
+    },
+    { scope: heroRef }
+  );
 
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0a]"
+      id="top"
+      className="bg-tech-grid relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0a] pt-20"
     >
-      {/* =========================================================
-          BACKGROUND
-      ========================================================= */}
-
+      {/* Ambient Glows with Parallax Mouse Tracking */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
       >
-        {/* Grid */}
         <div
-          className="absolute inset-0 opacity-[0.035]"
+          className="absolute -right-40 -top-40 h-[650px] w-[650px] rounded-full bg-[#c8ff3d]/[0.035] blur-[150px] transition-transform duration-700 ease-out will-change-transform"
           style={{
-            backgroundImage: `
-              linear-gradient(to right, #ffffff 1px, transparent 1px),
-              linear-gradient(to bottom, #ffffff 1px, transparent 1px)
-            `,
-            backgroundSize: "72px 72px",
+            transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 20}px)`,
           }}
         />
-
-        {/* Accent glow */}
-        <div className="absolute -right-40 -top-40 h-[650px] w-[650px] rounded-full bg-[#c8ff3d]/[0.035] blur-[150px]" />
-
-        {/* Small ambient glow */}
-        <div className="absolute bottom-[-250px] left-[20%] h-[500px] w-[500px] rounded-full bg-white/[0.015] blur-[130px]" />
+        <div
+          className="absolute bottom-[-250px] left-[20%] h-[500px] w-[500px] rounded-full bg-white/[0.015] blur-[130px] transition-transform duration-700 ease-out will-change-transform"
+          style={{
+            transform: `translate(${-mousePos.x * 25}px, ${-mousePos.y * 18}px)`,
+          }}
+        />
       </div>
 
       {/* =========================================================
-          NAVIGATION
+          FIXED HUD NAVIGATION BAR (SCROLL-AWARE)
       ========================================================= */}
-
       <header
         data-hero-nav
-        className="relative z-20 flex items-center justify-between border-b border-white/[0.08] px-6 py-5 md:px-10 lg:px-14"
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "border-b border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            : "border-b border-transparent bg-transparent"
+        }`}
       >
-        {/* Logo */}
-        <a
-          href="#"
-          className="group flex items-center gap-1 text-lg font-bold tracking-[-0.04em]"
-        >
-          VC
-          <span className="text-[#c8ff3d] transition-transform duration-300 group-hover:translate-x-1">
-            .
-          </span>
-        </a>
-
-        {/* Desktop navigation */}
-        <nav className="hidden items-center gap-9 text-[13px] text-white/45 md:flex">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-6 py-4 md:px-10 lg:px-14">
+          {/* Brand Logo */}
           <a
-            href="#work"
-            className="transition-colors duration-300 hover:text-white"
+            href="#top"
+            className="group flex items-center gap-1 text-lg font-bold tracking-[-0.04em]"
           >
-            Work
+            VC
+            <span className="text-[#c8ff3d] transition-transform duration-300 group-hover:translate-x-1">
+              .
+            </span>
           </a>
 
-          <a
-            href="#about"
-            className="transition-colors duration-300 hover:text-white"
+          {/* Desktop Navigation */}
+          <nav
+            aria-label="Primary Navigation"
+            className="hidden items-center gap-8 font-mono text-xs uppercase tracking-[0.2em] text-white/50 md:flex"
           >
-            About
-          </a>
+            {NAV_LINKS.map((link) => {
+              const isActive = activeSection === link.href.slice(1);
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`group relative flex items-center gap-2 py-1 transition-colors duration-300 ${
+                    isActive ? "text-white" : "hover:text-white"
+                  }`}
+                >
+                  <span
+                    className={`text-[10px] transition-colors ${
+                      isActive
+                        ? "text-[#c8ff3d]"
+                        : "text-[#c8ff3d]/70 group-hover:text-[#c8ff3d]"
+                    }`}
+                  >
+                    {link.num}
+                  </span>
+                  <span>{link.label}</span>
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#c8ff3d] shadow-[0_0_8px_rgba(200,255,61,0.7)]" />
+                  )}
+                </a>
+              );
+            })}
+          </nav>
 
-          <a
-            href="#stack"
-            className="transition-colors duration-300 hover:text-white"
-          >
-            Stack
-          </a>
+          {/* Right Status + Mobile Toggle */}
+          <div className="flex items-center gap-4">
+            <a
+              href="#contact"
+              className="gradient-border group hidden items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.02] px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.15em] text-white/65 transition-all hover:border-[#c8ff3d]/40 hover:text-white sm:flex"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c8ff3d] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#c8ff3d] shadow-[0_0_10px_rgba(200,255,61,0.6)]" />
+              </span>
+              <span>Available for work</span>
+            </a>
 
-          <a
-            href="#contact"
-            className="transition-colors duration-300 hover:text-white"
-          >
-            Contact
-          </a>
-        </nav>
-
-        {/* Contact */}
-        <a
-          href="mailto:vishalchoudhary7757@gmail.com"
-          className="group hidden items-center gap-2 text-[13px] text-white/55 sm:flex"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d] shadow-[0_0_10px_rgba(200,255,61,0.5)]" />
-
-          <span className="transition-colors duration-300 group-hover:text-white">
-            Available for opportunities
-          </span>
-        </a>
-
-        {/* Mobile indicator */}
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/35 sm:hidden">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d]" />
-          Available
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-expanded={mobileMenuOpen}
+              aria-label="Toggle navigation menu"
+              className="flex h-9 items-center justify-center rounded-full border border-white/15 px-3.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/70 md:hidden"
+            >
+              {mobileMenuOpen ? "CLOSE [×]" : "MENU [≡]"}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Drawer */}
+        {mobileMenuOpen && (
+          <nav
+            aria-label="Mobile Navigation"
+            className="border-t border-white/[0.08] bg-[#0a0a0a]/95 px-6 py-6 md:hidden"
+          >
+            <div className="flex flex-col gap-4 font-mono text-sm uppercase tracking-[0.2em]">
+              {NAV_LINKS.map((link) => {
+                const isActive = activeSection === link.href.slice(1);
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between border-b border-white/[0.06] pb-3 transition-colors ${
+                      isActive
+                        ? "text-[#c8ff3d]"
+                        : "text-white/70 hover:text-[#c8ff3d]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {isActive && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d] shadow-[0_0_6px_rgba(200,255,61,0.8)]" />
+                      )}
+                      <span>{link.label}</span>
+                    </div>
+                    <span className="text-xs text-[#c8ff3d]">{link.num}</span>
+                  </a>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* =========================================================
           HERO CONTENT
       ========================================================= */}
-
       <div className="relative z-10 flex flex-1 items-center px-6 py-16 md:px-10 md:py-20 lg:px-14">
         <div className="mx-auto w-full max-w-[1500px]">
-          {/* Top label */}
+          {/* Top Label */}
           <div
             data-hero-label
-            className="mb-8 flex items-center gap-4 text-[10px] uppercase tracking-[0.35em] text-white/35 md:text-xs"
+            className="mb-8 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.35em] text-white/40 md:text-xs"
           >
             <span className="h-px w-10 bg-[#c8ff3d]" />
-
-            <span>Software Developer</span>
-
-            <span className="hidden text-white/15 sm:inline">
-              / Hyderabad, IN
+            <span>Software Engineer</span>
+            <span className="hidden text-white/20 sm:inline">
+              // Hyderabad, IN
             </span>
           </div>
 
-          {/* =====================================================
-              MAIN TITLE
-          ===================================================== */}
-
+          {/* Main Headline with Text Scramble */}
           <div className="relative">
             <h1
               className="max-w-[1100px] text-[clamp(3.2rem,8.5vw,8.5rem)] font-black leading-[0.84] tracking-[-0.075em]"
               style={{ perspective: "1000px" }}
             >
-              {/* LINE 1 */}
-              <span
-                data-hero-line
-                className="block"
-              >
-                I BUILD
+              <span data-hero-line className="block">
+                {line1Text}
               </span>
-
-              {/* LINE 2 */}
-              <span
-                data-hero-line
-                className="block text-white/30"
-              >
-                SYSTEMS
-                <span className="text-[#c8ff3d]">.</span>
+              <span data-hero-line className="block text-white/30">
+                {line2Text.slice(0, -1)}
+                <span className="text-[#c8ff3d]">{line2Text.slice(-1)}</span>
               </span>
-
-              {/* LINE 3 */}
-              <span
-                data-hero-line
-                className="block"
-              >
-                THAT MAKE
+              <span data-hero-line className="block">
+                {line3Text}
               </span>
-
-              {/* LINE 4 */}
-              <span
-                data-hero-line
-                className="block text-white/30"
-              >
-                SENSE
-                <span className="text-[#c8ff3d]">.</span>
+              <span data-hero-line className="block text-white/30">
+                {line4Text.slice(0, -1)}
+                <span className="text-[#c8ff3d]">{line4Text.slice(-1)}</span>
               </span>
             </h1>
 
-            {/* ===================================================
-                TECHNICAL MARKER
-            =================================================== */}
-
+            {/* Technical Side Marker */}
             <div
               data-tech-marker
               className="absolute right-0 top-1/2 hidden -translate-y-1/2 lg:block"
             >
-              <div className="flex flex-col items-end gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25">
-                <span>BUILD_001</span>
-
-                <span>STATUS: ONLINE</span>
-
-                <span className="flex items-center gap-2 text-[#c8ff3d]/70">
+              <div className="flex flex-col items-end gap-3 border-r border-white/15 pr-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
+                <span>SYS_BUILD // 2026</span>
+                <span>B.TECH CSIT @ MLRITM</span>
+                <span className="flex items-center gap-2 text-[#c8ff3d]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d]" />
-                  READY
+                  STATUS: ONLINE
                 </span>
               </div>
             </div>
           </div>
 
-          {/* =====================================================
-              BOTTOM CONTENT
-          ===================================================== */}
-
+          {/* Bottom Description + Magnetic CTAs */}
           <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-[1fr_auto] md:items-end lg:mt-20">
-            {/* Description */}
-            <div
-              data-hero-description
-              className="max-w-[570px]"
-            >
-              <p className="text-base leading-7 text-white/50 md:text-lg md:leading-8">
-                I build software across{" "}
-                <span className="text-white/80">backend systems</span>,{" "}
-                <span className="text-white/80">
-                  AI-powered applications
+            <div data-hero-description className="max-w-[580px]">
+              <p className="text-base leading-7 text-white/55 md:text-lg md:leading-8">
+                I engineer software across{" "}
+                <span className="text-white/90">backend architectures</span>,{" "}
+                <span className="text-white/90">
+                  AI-powered geospatial retrieval
                 </span>
-                , network security, and interactive web experiences.
+                , packet-level network security, and high-motion web interfaces.
               </p>
             </div>
 
-            {/* CTA */}
             <div className="flex flex-wrap gap-3">
-              <a
+              <MagneticButton
                 data-hero-cta
                 href="#work"
-                className="group flex items-center gap-4 rounded-full bg-[#f2f0e9] px-6 py-3.5 text-sm font-semibold text-[#0a0a0a] transition-all duration-300 hover:bg-[#c8ff3d]"
+                className="group flex items-center gap-4 rounded-full bg-[#f2f0e9] px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-[#0a0a0a] transition-all duration-300 hover:bg-[#c8ff3d]"
               >
-                View my work
-
+                Explore Work
                 <span className="transition-transform duration-300 group-hover:translate-x-1">
                   ↗
                 </span>
-              </a>
+              </MagneticButton>
 
-              <a
+              <MagneticButton
                 data-hero-cta
-                href="mailto:vishalchoudhary7757@gmail.com"
-                className="flex items-center gap-3 rounded-full border border-white/15 px-6 py-3.5 text-sm text-white/65 transition-all duration-300 hover:border-white/35 hover:text-white"
+                href="#contact"
+                className="flex items-center gap-3 rounded-full border border-white/15 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.15em] text-white/70 transition-all duration-300 hover:border-[#c8ff3d]/50 hover:text-white"
               >
                 Get in touch
-              </a>
+              </MagneticButton>
             </div>
           </div>
         </div>
       </div>
 
       {/* =========================================================
-          BOTTOM BAR
+          BOTTOM TELEMETRY BAR
       ========================================================= */}
-
       <div
         data-hero-bottom
-        className="relative z-10 flex flex-col gap-4 border-t border-white/[0.08] px-6 py-5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/25 sm:flex-row sm:items-center sm:justify-between md:px-10 lg:px-14"
+        className="relative z-10 border-t border-white/[0.08]"
       >
-        <div className="flex items-center gap-6">
-          <span>01 / 05</span>
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30 sm:flex-row sm:items-center sm:justify-between md:px-10 lg:px-14">
+          <div className="flex items-center gap-5">
+            <span className="text-[#c8ff3d]">00 // INTRO</span>
+            <span className="hidden h-px w-10 bg-white/15 sm:block" />
+            <span>SYSTEM OVERVIEW</span>
+          </div>
 
-          <span className="hidden h-px w-12 bg-white/15 sm:block" />
+          <div className="flex flex-wrap items-center gap-6 text-white/40">
+            <span>Java</span>
+            <span>Python</span>
+            <span>FastAPI</span>
+            <span>PostGIS</span>
+            <span>Next.js</span>
+          </div>
 
-          <span>Selected work</span>
+          <a
+            href="#about"
+            className="group flex items-center gap-2 transition-colors hover:text-[#c8ff3d]"
+          >
+            <span>Scroll Down</span>
+            <span
+              data-scroll-indicator
+              className="inline-block transition-transform duration-300 group-hover:translate-y-1"
+            >
+              ↓
+            </span>
+          </a>
         </div>
-
-        <div className="flex items-center gap-6">
-          <span>Java</span>
-          <span>Python</span>
-          <span>Next.js</span>
-          <span className="hidden sm:inline">FastAPI</span>
-        </div>
-
-        <a
-          href="#work"
-          className="group flex items-center gap-2 transition-colors hover:text-white/60"
-        >
-          Scroll
-
-          <span className="inline-block transition-transform duration-300 group-hover:translate-y-1">
-            ↓
-          </span>
-        </a>
-      </div>
-
-      {/* =========================================================
-          CORNER MARK
-      ========================================================= */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-24 right-6 hidden font-mono text-[9px] uppercase tracking-[0.25em] text-white/15 lg:block"
-      >
-        VISHAL / 2026
       </div>
     </section>
   );
