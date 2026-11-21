@@ -1,4 +1,3 @@
-/* src/app/globals.css */
 @import "tailwindcss";
 
 @theme {
@@ -32,7 +31,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Unified technical grid background used across all sections */
 .bg-tech-grid {
   background-image:
     linear-gradient(to right, rgba(242, 240, 233, 0.035) 1px, transparent 1px),
@@ -54,7 +52,6 @@ body {
   }
 }
 
-/* Noise texture overlay */
 .noise-overlay {
   position: fixed;
   inset: 0;
@@ -65,14 +62,6 @@ body {
   background-repeat: repeat;
 }
 
-/* Hide default cursor when custom cursor is active */
-@media (pointer: fine) {
-  * {
-    cursor: none !important;
-  }
-}
-
-/* Clip-path reveal animation utility */
 .clip-reveal {
   clip-path: inset(0 0 100% 0);
 }
@@ -81,7 +70,6 @@ body {
   clip-path: inset(0 0 0% 0);
 }
 
-/* Gradient text utility */
 .text-gradient-accent {
   background: linear-gradient(135deg, #c8ff3d, #4d59e3);
   -webkit-background-clip: text;
@@ -89,7 +77,6 @@ body {
   background-clip: text;
 }
 
-/* Animated gradient border */
 @property --gradient-angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -108,7 +95,6 @@ body {
   to { --gradient-angle: 360deg; }
 }
 
-/* Section transition — fade overlap */
 .section-transition {
   position: relative;
 }
@@ -125,12 +111,10 @@ body {
   z-index: 5;
 }
 
-/* Magnetic element base */
 .magnetic {
   transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Smooth underline animation */
 .hover-underline {
   position: relative;
 }
