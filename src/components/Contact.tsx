@@ -1,12 +1,12 @@
 // src/components/Contact.tsx
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import Matter from "matter-js";
 
 const EMAIL = "vishalchoudhary7757@gmail.com";
+const GITHUB_URL = "https://github.com/vishalchoudhary07";
 
 /* ==================================================================
    COLOR PALETTE
@@ -18,200 +18,331 @@ const PALETTE = {
   light: "#F6F6F6",
 } as const;
 
-const PALETTE_ARR = [PALETTE.red, PALETTE.blue, PALETTE.lime, PALETTE.light];
-
 /* ==================================================================
-   TECH BLOCKS DATA
+   INTERACTIVE CONTACT TERMINAL
 ================================================================== */
-const TECH_LABELS = [
-  "{ }", "< />", "fn()", "=>", "0x1F", "[ ]", "//", "&&",
-  "||", "import", "async", "const", "type", "null", ".map()", "git",
+interface TerminalLine {
+  id: number;
+  type: "command" | "output" | "success" | "error" | "info" | "link";
+  text: string;
+  href?: string;
+}
+
+const COMMAND_LIST = ["help", "whoami", "status", "socials", "ping", "copy", "send", "clear"];
+
+const QUICK_COMMANDS = ["whoami", "status", "socials", "ping", "copy", "help"];
+
+const INITIAL_LINES: TerminalLine[] = [
+  { id: 1, type: "info", text: "VISHAL_OS v2.6 // DIRECT CONTACT SHELL" },
+  { id: 2, type: "output", text: "Type a command or click a chip below. Try 'help' or 'send Hey Vishal!'" },
 ];
 
-/* ==================================================================
-   INTERACTIVE PHYSICS SANDBOX (Matter.js)
-================================================================== */
-function PhysicsSandbox() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<Matter.Engine | null>(null);
-  const renderRef = useRef<Matter.Render | null>(null);
-  const runnerRef = useRef<Matter.Runner | null>(null);
-  const blocksRef = useRef<Matter.Body[]>([]);
+function ContactTerminal() {
+  const [lines, setLines] = useState<TerminalLine[]>(INITIAL_LINES);
+  const [input, setInput] = useState("");
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIdx, setHistoryIdx] = useState<number>(-1);
+  const [isPinging, setIsPinging] = useState(false);
 
-  const initPhysics = useCallback(() => {
-    const container = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!container || !canvas) return;
+  const nextIdRef = useRef(INITIAL_LINES.length + 1);
+  const outputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const timeoutsRef = useRef<number[]>([]);
 
-    // Cleanup previous
-    if (renderRef.current) Matter.Render.stop(renderRef.current);
-    if (runnerRef.current) Matter.Runner.stop(runnerRef.current);
-    if (engineRef.current) {
-      Matter.Composite.clear(engineRef.current.world, false);
-      Matter.Engine.clear(engineRef.current);
+  const pushLines = (newLines: Omit<TerminalLine, "id">[]) => {
+    setLines((prev) => [
+      ...prev,
+      ...newLines.map((line) => ({ ...line, id: nextIdRef.current++ })),
+    ]);
+  };
+
+  // Auto-scroll terminal output container only
+  useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
     }
+  }, [lines]);
 
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    const dpr = window.devicePixelRatio || 1;
-
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-
-    const engine = Matter.Engine.create({ gravity: { x: 0, y: 1.2 } });
-    engineRef.current = engine;
-
-    const render = Matter.Render.create({
-      canvas,
-      engine,
-      options: {
-        width: w,
-        height: h,
-        pixelRatio: dpr,
-        wireframes: false,
-        background: "transparent",
-      },
-    });
-    renderRef.current = render;
-
-    // Invisible walls
-    const wallOpts: Matter.IChamferableBodyDefinition = {
-      isStatic: true,
-      render: { visible: false },
-      friction: 0.3,
+  // Cleanup any active ping timers on unmount
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((id) => window.clearTimeout(id));
     };
-    const walls = [
-      Matter.Bodies.rectangle(w / 2, h + 10, w + 40, 20, wallOpts),
-      Matter.Bodies.rectangle(-10, h / 2, 20, h + 40, wallOpts),
-      Matter.Bodies.rectangle(w + 10, h / 2, 20, h + 40, wallOpts),
-      Matter.Bodies.rectangle(w / 2, -10, w + 40, 20, wallOpts),
-    ];
-
-    // Create tech blocks
-    const blocks: Matter.Body[] = TECH_LABELS.map((label, i) => {
-      const blockW = 36 + label.length * 9;
-      const blockH = 32;
-      const color = PALETTE_ARR[i % PALETTE_ARR.length];
-
-      return Matter.Bodies.rectangle(
-        50 + Math.random() * (w - 100),
-        -40 - Math.random() * h * 0.6,
-        blockW,
-        blockH,
-        {
-          chamfer: { radius: 8 },
-          restitution: 0.45,
-          friction: 0.4,
-          frictionAir: 0.01,
-          render: { fillStyle: color },
-          label,
-        }
-      );
-    });
-    blocksRef.current = blocks;
-
-    Matter.Composite.add(engine.world, [...walls, ...blocks]);
-
-    // Mouse drag
-    const mouse = Matter.Mouse.create(canvas);
-    const mouseConstraint = Matter.MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2, render: { visible: false } },
-    });
-    Matter.Composite.add(engine.world, mouseConstraint);
-    mouse.pixelRatio = dpr;
-
-    // Draw text on blocks
-    Matter.Events.on(render, "afterRender", () => {
-      const ctx = render.context;
-      if (!ctx) return;
-
-      blocks.forEach((block) => {
-        const { x, y } = block.position;
-        const fill = block.render.fillStyle as string;
-        const textColor =
-          fill === PALETTE.light || fill === PALETTE.lime ? "#0a0a0a" : "#ffffff";
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(block.angle);
-        ctx.font = `bold 11px "JetBrains Mono", ui-monospace, monospace`;
-        ctx.fillStyle = textColor;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(block.label, 0, 1);
-        ctx.restore();
-      });
-    });
-
-    const runner = Matter.Runner.create();
-    runnerRef.current = runner;
-    Matter.Render.run(render);
-    Matter.Runner.run(runner, engine);
   }, []);
 
-  useEffect(() => {
-    const timeout = setTimeout(initPhysics, 200);
-    const handleResize = () => initPhysics();
-    window.addEventListener("resize", handleResize);
+  const runCommand = async (raw: string) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return;
 
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", handleResize);
-      if (renderRef.current) Matter.Render.stop(renderRef.current);
-      if (runnerRef.current) Matter.Runner.stop(runnerRef.current);
-      if (engineRef.current) {
-        Matter.Composite.clear(engineRef.current.world, false);
-        Matter.Engine.clear(engineRef.current);
+    const [cmdRaw, ...rest] = trimmed.split(/\s+/);
+    const cmd = cmdRaw.toLowerCase();
+    const arg = rest.join(" ");
+
+    setHistory((prev) => [trimmed, ...prev.slice(0, 24)]);
+    setHistoryIdx(-1);
+
+    if (cmd === "clear") {
+      timeoutsRef.current.forEach((id) => window.clearTimeout(id));
+      timeoutsRef.current = [];
+      setIsPinging(false);
+      setLines(INITIAL_LINES);
+      return;
+    }
+
+    pushLines([{ type: "command", text: `visitor@portfolio:~$ ${trimmed}` }]);
+
+    switch (cmd) {
+      case "help":
+        pushLines([
+          { type: "info", text: "AVAILABLE COMMANDS:" },
+          { type: "output", text: "  whoami          -> Quick bio & focus areas" },
+          { type: "output", text: "  status          -> Availability, roles & timezone" },
+          { type: "output", text: "  socials         -> Direct email & GitHub links" },
+          { type: "output", text: "  copy            -> Copy email address to clipboard" },
+          { type: "output", text: "  ping            -> Check inbox response latency" },
+          { type: "output", text: "  send <message>  -> Draft & open a direct email" },
+          { type: "output", text: "  clear           -> Reset terminal output" },
+        ]);
+        break;
+
+      case "whoami":
+        pushLines([
+          { type: "success", text: "Vishal Choudhary — Computer Science Student & Software Engineer" },
+          { type: "output", text: "Building backend & AI systems alongside motion-driven web interfaces." },
+          { type: "output", text: "Stack: Next.js, TypeScript, React, Tailwind CSS, GSAP, C / Systems." },
+        ]);
+        break;
+
+      case "status":
+        pushLines([
+          { type: "success", text: "● STATUS: OPEN FOR OPPORTUNITIES" },
+          { type: "output", text: "  Roles     : SWE Internships, Backend / AI Systems, Creative Frontend" },
+          { type: "output", text: "  Timezone  : IST (UTC+5:30)" },
+          { type: "output", text: "  Response  : Usually within 24 hours" },
+        ]);
+        break;
+
+      case "socials":
+        pushLines([
+          { type: "info", text: "DIRECT CHANNELS:" },
+          { type: "link", text: `  Email  -> ${EMAIL}`, href: `mailto:${EMAIL}` },
+          { type: "link", text: `  GitHub -> ${GITHUB_URL}`, href: GITHUB_URL },
+        ]);
+        break;
+
+      case "copy":
+      case "email":
+        try {
+          await navigator.clipboard.writeText(EMAIL);
+          pushLines([{ type: "success", text: `✓ Copied "${EMAIL}" to clipboard.` }]);
+        } catch {
+          pushLines([{ type: "info", text: `Direct email: ${EMAIL}` }]);
+        }
+        break;
+
+      case "ping": {
+        if (isPinging) return;
+        setIsPinging(true);
+        pushLines([{ type: "info", text: `PING ${EMAIL} (direct-inbox): 56 data bytes` }]);
+
+        const steps = [
+          { delay: 320, text: "64 bytes from vishal.inbox: seq=1 ttl=64 time=11.4 ms", type: "output" as const },
+          { delay: 680, text: "64 bytes from vishal.inbox: seq=2 ttl=64 time=9.8 ms", type: "output" as const },
+          { delay: 1040, text: "64 bytes from vishal.inbox: seq=3 ttl=64 time=10.2 ms", type: "output" as const },
+          { delay: 1400, text: "✓ 3 packets transmitted, 3 received, 0% packet loss — ready to build.", type: "success" as const },
+        ];
+
+        steps.forEach((step, idx) => {
+          const timer = window.setTimeout(() => {
+            pushLines([{ type: step.type, text: step.text }]);
+            if (idx === steps.length - 1) setIsPinging(false);
+          }, step.delay);
+          timeoutsRef.current.push(timer);
+        });
+        break;
       }
-    };
-  }, [initPhysics]);
 
-  const handleShake = () => {
-    blocksRef.current.forEach((block) => {
-      Matter.Body.applyForce(block, block.position, {
-        x: (Math.random() - 0.5) * 0.08,
-        y: -(Math.random() * 0.12 + 0.04),
-      });
-    });
+      case "send":
+        if (!arg) {
+          pushLines([
+            { type: "error", text: "Usage: send <your message>" },
+            { type: "output", text: 'Example: send Hey Vishal, let’s talk about an internship.' },
+          ]);
+        } else {
+          const mailto = `mailto:${EMAIL}?subject=${encodeURIComponent(
+            "Portfolio Inquiry"
+          )}&body=${encodeURIComponent(arg)}`;
+          pushLines([
+            { type: "success", text: `✓ Dispatching message to ${EMAIL}...` },
+            { type: "output", text: `  Payload: "${arg}"` },
+          ]);
+          window.location.href = mailto;
+        }
+        break;
+
+      default:
+        pushLines([
+          { type: "error", text: `Command not found: "${cmd}". Type 'help' to see valid commands.` },
+        ]);
+        break;
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const current = input;
+    setInput("");
+    runCommand(current);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (history.length === 0) return;
+      const nextIdx = Math.min(historyIdx + 1, history.length - 1);
+      setHistoryIdx(nextIdx);
+      setInput(history[nextIdx]);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIdx <= 0) {
+        setHistoryIdx(-1);
+        setInput("");
+      } else {
+        const nextIdx = historyIdx - 1;
+        setHistoryIdx(nextIdx);
+        setInput(history[nextIdx]);
+      }
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      const value = input.trim().toLowerCase();
+      if (!value) return;
+      const match = COMMAND_LIST.find((c) => c.startsWith(value));
+      if (match) setInput(match === "send" ? "send " : match);
+    }
+  };
+
+  const handleTerminalClick = () => {
+    if (window.getSelection()?.toString()) return;
+    inputRef.current?.focus();
   };
 
   return (
     <div className="mt-16 lg:mt-20">
       <div className="relative overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#111111]/90">
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-white/[0.07] px-6 py-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
-            PHYSICS_LAB // INTERACTIVE
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ED4059]/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#C6E354]/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#4D59E3]/80" />
+            </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
+              CONTACT_SHELL // INTERACTIVE
+            </span>
+          </div>
+
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={handleShake}
+              onClick={() => runCommand("clear")}
               className="cursor-pointer rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 transition-all hover:border-[#C6E354]/50 hover:text-white"
             >
-              SHAKE ↻
+              CLEAR
             </button>
             <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C6E354]">
               <span className="relative flex h-2 w-2">
                 <span className="absolute h-full w-full animate-ping rounded-full bg-[#C6E354] opacity-40" />
                 <span className="h-2 w-2 rounded-full bg-[#C6E354]" />
               </span>
-              LIVE
+              ONLINE
             </span>
           </div>
         </div>
 
-        {/* Canvas */}
-        <div ref={containerRef} className="relative h-[300px] w-full sm:h-[350px]">
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 h-full w-full"
-            style={{ touchAction: "none" }}
-          />
+        {/* Terminal Body */}
+        <div
+          onClick={handleTerminalClick}
+          className="flex h-[320px] cursor-text flex-col justify-between p-6 font-mono text-xs sm:h-[360px] sm:text-[13px]"
+        >
+          {/* Output Log */}
+          <div
+            ref={outputRef}
+            data-lenis-prevent
+            className="flex-1 space-y-2 overflow-y-auto pr-2 leading-relaxed"
+          >
+            {lines.map((line) => {
+              if (line.type === "link" && line.href) {
+                return (
+                  <div key={line.id}>
+                    <a
+                      href={line.href}
+                      target={line.href.startsWith("http") ? "_blank" : undefined}
+                      rel={line.href.startsWith("http") ? "noreferrer" : undefined}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[#C6E354] underline decoration-[#C6E354]/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                    >
+                      {line.text}
+                    </a>
+                  </div>
+                );
+              }
+
+              const colorClass =
+                line.type === "command"
+                  ? "text-white font-semibold pt-2"
+                  : line.type === "success"
+                  ? "text-[#C6E354]"
+                  : line.type === "error"
+                  ? "text-[#ED4059]"
+                  : line.type === "info"
+                  ? "text-[#4D59E3]"
+                  : "text-white/65";
+
+              return (
+                <div key={line.id} className={`whitespace-pre-wrap break-words ${colorClass}`}>
+                  {line.text}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Prompt + Quick Commands */}
+          <div className="mt-4 border-t border-white/[0.07] pt-4">
+            <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
+              <span className="shrink-0 text-[#C6E354]">visitor@portfolio:~$</span>
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="type 'help' or 'send Hello!'"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label="Contact terminal command input"
+                className="w-full bg-transparent text-[#f2f0e9] placeholder:text-white/25 focus:outline-none"
+              />
+            </form>
+
+            {/* Quick Command Chips */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {QUICK_COMMANDS.map((cmd) => (
+                <button
+                  key={cmd}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    runCommand(cmd);
+                    inputRef.current?.focus();
+                  }}
+                  className="cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 font-mono text-[10px] tracking-[0.12em] text-white/55 transition-all hover:border-[#C6E354]/60 hover:bg-[#C6E354]/10 hover:text-[#C6E354]"
+                >
+                  $ {cmd}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -220,9 +351,10 @@ function PhysicsSandbox() {
         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C6E354]" />
         <p className="font-mono text-[11px] text-white/40">
           <strong className="mr-2 uppercase tracking-wider text-[#C6E354]">
-            [MATTER.JS PHYSICS]
+            [INTERACTIVE SHELL]
           </strong>
-          Built with real physics — go on, drag them around. Hit SHAKE to toss them up.
+          Supports Tab autocomplete, ↑/↓ history, clickable commands, and direct mail dispatch via{" "}
+          <span className="text-white/70">send &lt;message&gt;</span>.
         </p>
       </div>
     </div>
@@ -299,16 +431,30 @@ function MagneticButton({
 
   if (as === "a") {
     return (
-      <a ref={ref as React.RefObject<HTMLAnchorElement | null>} href={href} target={target} rel={rel}
-        onClick={onClick} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className={className}>
+      <a
+        ref={ref as React.RefObject<HTMLAnchorElement | null>}
+        href={href}
+        target={target}
+        rel={rel}
+        onClick={onClick}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={className}
+      >
         {children}
       </a>
     );
   }
 
   return (
-    <button ref={ref as React.RefObject<HTMLButtonElement | null>} type={type}
-      onClick={onClick} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className={className}>
+    <button
+      ref={ref as React.RefObject<HTMLButtonElement | null>}
+      type={type}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+    >
       {children}
     </button>
   );
@@ -366,7 +512,10 @@ export default function Contact() {
           const type = () => {
             i++;
             setHeadlineText(full.slice(0, i));
-            if (i >= full.length) { setHeadlineDone(true); return; }
+            if (i >= full.length) {
+              setHeadlineDone(true);
+              return;
+            }
             setTimeout(type, i === 6 ? 260 : 65);
           };
           setTimeout(type, 300);
@@ -378,10 +527,9 @@ export default function Contact() {
     return () => observer.disconnect();
   }, []);
 
-  // Shimmer dot + bounce arrow (decorative only — no opacity animations)
+  // Shimmer dot + bounce arrow
   useGSAP(
     () => {
-      // Gradient line reveal
       if (lineRef.current) {
         gsap.from(lineRef.current, {
           scaleX: 0,
@@ -392,7 +540,6 @@ export default function Contact() {
         });
       }
 
-      // Shimmer dot loops along the gradient line
       gsap.set(".shimmer-dot", { opacity: 0 });
       gsap.to(".shimmer-dot", {
         opacity: 0.8,
@@ -407,7 +554,6 @@ export default function Contact() {
         delay: 2,
       });
 
-      // Back to top arrow bounce
       gsap.to(".back-to-top-arrow", {
         y: -4,
         duration: 0.8,
@@ -525,7 +671,7 @@ export default function Contact() {
           <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-2xl">
               <p className="text-lg leading-relaxed text-white/60 md:text-xl">
-                I&apos;m currently open to software engineering roles, backend &
+                I&apos;m currently open to software engineering roles, backend &amp;
                 AI systems internships, and ambitious technical collaborations.
               </p>
               <p className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-white/35">
@@ -561,7 +707,7 @@ export default function Contact() {
 
               <MagneticButton
                 as="a"
-                href="https://github.com/vishalchoudhary07"
+                href={GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="group flex min-w-[240px] items-center justify-between rounded-full border border-white/15 px-6 py-4 font-mono text-xs uppercase tracking-[0.18em] text-white/70 transition-all duration-300 hover:border-white/45 hover:text-white"
@@ -572,8 +718,8 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* ============== PHYSICS SANDBOX ============== */}
-          <PhysicsSandbox />
+          {/* ============== INTERACTIVE TERMINAL ============== */}
+          <ContactTerminal />
         </div>
 
         {/* ============== FOOTER ============== */}
