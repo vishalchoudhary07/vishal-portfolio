@@ -9,14 +9,13 @@ export default function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only mount cursor if pointer is fine (not mobile/touch) and not reduced-motion
     if (typeof window === "undefined") return;
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const hasFinePointer = window.matchMedia("(any-pointer: fine)").matches;
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    if (!isTouch && !prefersReducedMotion) {
+    if (hasFinePointer && !prefersReducedMotion) {
       setMounted(true);
     }
   }, []);
@@ -27,14 +26,12 @@ export default function CustomCursor() {
     const dot = dotRef.current;
     const ring = ringRef.current;
 
-    // Initial setup: centered on coordinates and hidden until first movement
     gsap.set([dot, ring], {
       xPercent: -50,
       yPercent: -50,
       opacity: 0,
     });
 
-    // gsap.quickTo for smooth follow physics (dot is fast, ring trails smoothly)
     const setDotX = gsap.quickTo(dot, "x", { duration: 0.15, ease: "power3.out" });
     const setDotY = gsap.quickTo(dot, "y", { duration: 0.15, ease: "power3.out" });
     const setRingX = gsap.quickTo(ring, "x", { duration: 0.4, ease: "power3.out" });
@@ -78,8 +75,8 @@ export default function CustomCursor() {
           currentState = "interactive";
           gsap.to(ring, {
             scale: 1.5,
-            borderColor: "rgba(200, 255, 61, 0.6)",
-            backgroundColor: "rgba(200, 255, 61, 0.05)",
+            borderColor: "rgba(29, 78, 216, 0.75)",
+            backgroundColor: "rgba(29, 78, 216, 0.08)",
             mixBlendMode: "normal",
             duration: 0.3,
             ease: "power2.out",
@@ -98,7 +95,7 @@ export default function CustomCursor() {
           gsap.to(ring, {
             scale: 1.8,
             borderColor: "transparent",
-            backgroundColor: "#f2f0e9",
+            backgroundColor: "#ffffff",
             mixBlendMode: "difference",
             duration: 0.3,
             ease: "power2.out",
@@ -116,7 +113,7 @@ export default function CustomCursor() {
           currentState = "default";
           gsap.to(ring, {
             scale: 1,
-            borderColor: "rgba(242, 240, 233, 0.4)",
+            borderColor: "rgba(17, 19, 24, 0.35)",
             backgroundColor: "transparent",
             mixBlendMode: "normal",
             duration: 0.3,
@@ -176,17 +173,15 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Trailing Ring */}
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="fixed top-0 left-0 w-10 h-10 rounded-full border border-[rgba(242,240,233,0.4)] pointer-events-none z-[9999] will-change-transform"
+        className="fixed top-0 left-0 w-10 h-10 rounded-full border border-[#111318]/35 pointer-events-none z-[9999] will-change-transform"
       />
-      {/* Leading Dot */}
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-[#c8ff3d] pointer-events-none z-[9999] shadow-[0_0_8px_rgba(200,255,61,0.6)] will-change-transform"
+        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-[#ff4d2d] pointer-events-none z-[9999] shadow-[0_0_8px_rgba(255,77,45,0.45)] will-change-transform"
       />
     </>
   );

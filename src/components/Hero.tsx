@@ -32,7 +32,6 @@ function useTextScramble(text: string, trigger: boolean, delay: number = 0) {
     let rafId: number;
     let isResolving = false;
 
-    // Immediately cycle random characters while waiting for line resolve delay
     const cyclePreResolve = () => {
       let output = "";
       for (let i = 0; i < text.length; i++) {
@@ -158,7 +157,7 @@ export default function Hero() {
   const line3Text = useTextScramble("THAT MAKE", scrambleTrigger, 300);
   const line4Text = useTextScramble("SENSE.", scrambleTrigger, 450);
 
-  // Parallax mouse tracking for ambient glow backgrounds
+  // Parallax mouse tracking for ambient washes
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({
@@ -213,7 +212,6 @@ export default function Hero() {
     () => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      // Initial positions and opacity
       gsap.set("[data-hero-nav]", { opacity: 0, y: -20 });
       gsap.set("[data-hero-label]", { opacity: 0, x: -30 });
       gsap.set("[data-tech-marker]", { opacity: 0, x: 40 });
@@ -225,7 +223,6 @@ export default function Hero() {
       gsap.set("[data-hero-cta]", { opacity: 0, scale: 0.8, y: 15 });
       gsap.set("[data-hero-bottom]", { opacity: 0, y: 30 });
 
-      // Sequence
       tl.to("[data-hero-nav]", {
         opacity: 1,
         y: 0,
@@ -258,7 +255,6 @@ export default function Hero() {
         )
         .to("[data-hero-bottom]", { opacity: 1, y: 0, duration: 0.6 }, "-=0.3");
 
-      // Repeating bounce animation for scroll indicator
       gsap.to("[data-scroll-indicator]", {
         y: 8,
         duration: 1.2,
@@ -274,21 +270,21 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="top"
-      className="bg-tech-grid relative flex min-h-screen flex-col overflow-hidden bg-[#0a0a0a] pt-20"
+      className="bg-tech-grid relative flex min-h-screen flex-col overflow-hidden bg-[#F4F3EE] pt-20 text-[#111318]"
     >
-      {/* Ambient Glows with Parallax Mouse Tracking */}
+      {/* Subtle Architectural Color Washes with Parallax Mouse Tracking */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
         <div
-          className="absolute -right-40 -top-40 h-[650px] w-[650px] rounded-full bg-[#c8ff3d]/[0.035] blur-[150px] transition-transform duration-700 ease-out will-change-transform"
+          className="absolute -right-40 -top-40 h-[620px] w-[620px] rounded-full bg-[#1D4ED8]/[0.055] blur-[140px] transition-transform duration-700 ease-out will-change-transform"
           style={{
             transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 20}px)`,
           }}
         />
         <div
-          className="absolute bottom-[-250px] left-[20%] h-[500px] w-[500px] rounded-full bg-white/[0.015] blur-[130px] transition-transform duration-700 ease-out will-change-transform"
+          className="absolute bottom-[-220px] left-[18%] h-[480px] w-[480px] rounded-full bg-[#FF4D2D]/[0.045] blur-[130px] transition-transform duration-700 ease-out will-change-transform"
           style={{
             transform: `translate(${-mousePos.x * 25}px, ${-mousePos.y * 18}px)`,
           }}
@@ -302,7 +298,7 @@ export default function Hero() {
         data-hero-nav
         className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "border-b border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            ? "border-b border-[#111318]/[0.1] bg-[#F4F3EE]/85 backdrop-blur-md shadow-[0_8px_28px_-14px_rgba(17,19,24,0.14)]"
             : "border-b border-transparent bg-transparent"
         }`}
       >
@@ -310,10 +306,10 @@ export default function Hero() {
           {/* Brand Logo */}
           <a
             href="#top"
-            className="group flex items-center gap-1 text-lg font-bold tracking-[-0.04em]"
+            className="group flex items-center gap-1 text-lg font-black tracking-[-0.04em] text-[#111318]"
           >
             VC
-            <span className="text-[#c8ff3d] transition-transform duration-300 group-hover:translate-x-1">
+            <span className="text-[#FF4D2D] transition-transform duration-300 group-hover:translate-x-1">
               .
             </span>
           </a>
@@ -321,7 +317,7 @@ export default function Hero() {
           {/* Desktop Navigation */}
           <nav
             aria-label="Primary Navigation"
-            className="hidden items-center gap-8 font-mono text-xs uppercase tracking-[0.2em] text-white/50 md:flex"
+            className="hidden items-center gap-8 font-mono text-xs uppercase tracking-[0.2em] text-[#5A5E6B] md:flex"
           >
             {NAV_LINKS.map((link) => {
               const isActive = activeSection === link.href.slice(1);
@@ -330,21 +326,23 @@ export default function Hero() {
                   key={link.href}
                   href={link.href}
                   className={`group relative flex items-center gap-2 py-1 transition-colors duration-300 ${
-                    isActive ? "text-white" : "hover:text-white"
+                    isActive
+                      ? "font-semibold text-[#111318]"
+                      : "hover:text-[#111318]"
                   }`}
                 >
                   <span
-                    className={`text-[10px] transition-colors ${
+                    className={`text-[10px] font-semibold transition-colors ${
                       isActive
-                        ? "text-[#c8ff3d]"
-                        : "text-[#c8ff3d]/70 group-hover:text-[#c8ff3d]"
+                        ? "text-[#1D4ED8]"
+                        : "text-[#1D4ED8]/70 group-hover:text-[#1D4ED8]"
                     }`}
                   >
                     {link.num}
                   </span>
                   <span>{link.label}</span>
                   {isActive && (
-                    <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#c8ff3d] shadow-[0_0_8px_rgba(200,255,61,0.7)]" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#1D4ED8]" />
                   )}
                 </a>
               );
@@ -355,11 +353,11 @@ export default function Hero() {
           <div className="flex items-center gap-4">
             <a
               href="#contact"
-              className="gradient-border group hidden items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.02] px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.15em] text-white/65 transition-all hover:border-[#c8ff3d]/40 hover:text-white sm:flex"
+              className="gradient-border group hidden items-center gap-2.5 rounded-full px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-[#111318]/80 shadow-[0_6px_18px_-10px_rgba(17,19,24,0.2)] transition-all hover:text-[#1D4ED8] sm:flex"
             >
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c8ff3d] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#c8ff3d] shadow-[0_0_10px_rgba(200,255,61,0.6)]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF4D2D] opacity-65" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#FF4D2D]" />
               </span>
               <span>Available for work</span>
             </a>
@@ -369,7 +367,7 @@ export default function Hero() {
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               aria-expanded={mobileMenuOpen}
               aria-label="Toggle navigation menu"
-              className="flex h-9 items-center justify-center rounded-full border border-white/15 px-3.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/70 md:hidden"
+              className="flex h-9 items-center justify-center rounded-full border border-[#111318]/20 bg-white/70 px-3.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#111318]/80 md:hidden"
             >
               {mobileMenuOpen ? "CLOSE [×]" : "MENU [≡]"}
             </button>
@@ -380,7 +378,7 @@ export default function Hero() {
         {mobileMenuOpen && (
           <nav
             aria-label="Mobile Navigation"
-            className="border-t border-white/[0.08] bg-[#0a0a0a]/95 px-6 py-6 md:hidden"
+            className="border-t border-[#111318]/[0.1] bg-[#F4F3EE]/95 px-6 py-6 backdrop-blur-md md:hidden"
           >
             <div className="flex flex-col gap-4 font-mono text-sm uppercase tracking-[0.2em]">
               {NAV_LINKS.map((link) => {
@@ -390,19 +388,21 @@ export default function Hero() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center justify-between border-b border-white/[0.06] pb-3 transition-colors ${
+                    className={`flex items-center justify-between border-b border-[#111318]/[0.08] pb-3 transition-colors ${
                       isActive
-                        ? "text-[#c8ff3d]"
-                        : "text-white/70 hover:text-[#c8ff3d]"
+                        ? "font-semibold text-[#1D4ED8]"
+                        : "text-[#111318]/75 hover:text-[#1D4ED8]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       {isActive && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d] shadow-[0_0_6px_rgba(200,255,61,0.8)]" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
                       )}
                       <span>{link.label}</span>
                     </div>
-                    <span className="text-xs text-[#c8ff3d]">{link.num}</span>
+                    <span className="text-xs font-semibold text-[#1D4ED8]">
+                      {link.num}
+                    </span>
                   </a>
                 );
               })}
@@ -419,11 +419,13 @@ export default function Hero() {
           {/* Top Label */}
           <div
             data-hero-label
-            className="mb-8 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.35em] text-white/40 md:text-xs"
+            className="mb-8 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.35em] text-[#5A5E6B] md:text-xs"
           >
-            <span className="h-px w-10 bg-[#c8ff3d]" />
-            <span>Software Engineer</span>
-            <span className="hidden text-white/20 sm:inline">
+            <span className="h-[1.5px] w-10 bg-[#1D4ED8]" />
+            <span className="font-medium text-[#111318]/80">
+              Software Engineer
+            </span>
+            <span className="hidden text-[#5A5E6B]/70 sm:inline">
               // Hyderabad, IN
             </span>
           </div>
@@ -431,22 +433,22 @@ export default function Hero() {
           {/* Main Headline with Text Scramble */}
           <div className="relative">
             <h1
-              className="max-w-[1100px] text-[clamp(3.2rem,8.5vw,8.5rem)] font-black leading-[0.84] tracking-[-0.075em]"
+              className="max-w-[1100px] text-[clamp(3.2rem,8.5vw,8.5rem)] font-black leading-[0.84] tracking-[-0.075em] text-[#111318]"
               style={{ perspective: "1000px" }}
             >
               <span data-hero-line className="block">
                 {line1Text}
               </span>
-              <span data-hero-line className="block text-white/30">
+              <span data-hero-line className="block text-[#111318]/25">
                 {line2Text.slice(0, -1)}
-                <span className="text-[#c8ff3d]">{line2Text.slice(-1)}</span>
+                <span className="text-[#FF4D2D]">{line2Text.slice(-1)}</span>
               </span>
               <span data-hero-line className="block">
                 {line3Text}
               </span>
-              <span data-hero-line className="block text-white/30">
+              <span data-hero-line className="block text-[#111318]/25">
                 {line4Text.slice(0, -1)}
-                <span className="text-[#c8ff3d]">{line4Text.slice(-1)}</span>
+                <span className="text-[#1D4ED8]">{line4Text.slice(-1)}</span>
               </span>
             </h1>
 
@@ -455,11 +457,11 @@ export default function Hero() {
               data-tech-marker
               className="absolute right-0 top-1/2 hidden -translate-y-1/2 lg:block"
             >
-              <div className="flex flex-col items-end gap-3 border-r border-white/15 pr-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
+              <div className="flex flex-col items-end gap-3 border-r-2 border-[#111318]/15 pr-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B]">
                 <span>SYS_BUILD // 2026</span>
                 <span>B.TECH CSIT @ MLRITM</span>
-                <span className="flex items-center gap-2 text-[#c8ff3d]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d]" />
+                <span className="flex items-center gap-2 font-semibold text-[#111318]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
                   STATUS: ONLINE
                 </span>
               </div>
@@ -469,10 +471,13 @@ export default function Hero() {
           {/* Bottom Description + Magnetic CTAs */}
           <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-[1fr_auto] md:items-end lg:mt-20">
             <div data-hero-description className="max-w-[580px]">
-              <p className="text-base leading-7 text-white/55 md:text-lg md:leading-8">
+              <p className="text-base leading-7 text-[#5A5E6B] md:text-lg md:leading-8">
                 I engineer software across{" "}
-                <span className="text-white/90">backend architectures</span>,{" "}
-                <span className="text-white/90">
+                <span className="font-semibold text-[#111318]">
+                  backend architectures
+                </span>
+                ,{" "}
+                <span className="font-semibold text-[#111318]">
                   AI-powered geospatial retrieval
                 </span>
                 , packet-level network security, and high-motion web interfaces.
@@ -483,7 +488,7 @@ export default function Hero() {
               <MagneticButton
                 data-hero-cta
                 href="#work"
-                className="group flex items-center gap-4 rounded-full bg-[#f2f0e9] px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-[#0a0a0a] transition-all duration-300 hover:bg-[#c8ff3d]"
+                className="group flex items-center gap-4 rounded-full bg-[#111318] px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-[#F4F3EE] transition-all duration-300 hover:bg-[#1D4ED8]"
               >
                 Explore Work
                 <span className="transition-transform duration-300 group-hover:translate-x-1">
@@ -494,7 +499,7 @@ export default function Hero() {
               <MagneticButton
                 data-hero-cta
                 href="#contact"
-                className="flex items-center gap-3 rounded-full border border-white/15 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.15em] text-white/70 transition-all duration-300 hover:border-[#c8ff3d]/50 hover:text-white"
+                className="flex items-center gap-3 rounded-full border border-[#111318]/20 bg-white/75 px-6 py-3.5 font-mono text-xs font-medium uppercase tracking-[0.15em] text-[#111318] transition-all duration-300 hover:border-[#FF4D2D] hover:text-[#FF4D2D]"
               >
                 Get in touch
               </MagneticButton>
@@ -508,16 +513,16 @@ export default function Hero() {
       ========================================================= */}
       <div
         data-hero-bottom
-        className="relative z-10 border-t border-white/[0.08]"
+        className="relative z-10 border-t border-[#111318]/[0.1]"
       >
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30 sm:flex-row sm:items-center sm:justify-between md:px-10 lg:px-14">
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] sm:flex-row sm:items-center sm:justify-between md:px-10 lg:px-14">
           <div className="flex items-center gap-5">
-            <span className="text-[#c8ff3d]">00 // INTRO</span>
-            <span className="hidden h-px w-10 bg-white/15 sm:block" />
+            <span className="font-semibold text-[#1D4ED8]">00 // INTRO</span>
+            <span className="hidden h-px w-10 bg-[#111318]/20 sm:block" />
             <span>SYSTEM OVERVIEW</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-white/40">
+          <div className="flex flex-wrap items-center gap-6 font-medium text-[#111318]/70">
             <span>Java</span>
             <span>Python</span>
             <span>FastAPI</span>
@@ -527,7 +532,7 @@ export default function Hero() {
 
           <a
             href="#about"
-            className="group flex items-center gap-2 transition-colors hover:text-[#c8ff3d]"
+            className="group flex items-center gap-2 font-medium text-[#111318]/75 transition-colors hover:text-[#1D4ED8]"
           >
             <span>Scroll Down</span>
             <span

@@ -118,7 +118,7 @@ function TiltCard({
 }
 
 /**
- * Enhanced interactive keyword with hover scale, left-to-right animated underline, and glowing accent.
+ * Interactive keyword with hover scale and left-to-right animated underline.
  */
 function InteractiveWord({
   word,
@@ -127,11 +127,9 @@ function InteractiveWord({
   word: string;
   className?: string;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
   const wordRef = useRef<HTMLSpanElement>(null);
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
     if (wordRef.current) {
       gsap.to(wordRef.current, {
         scale: 1.05,
@@ -142,7 +140,6 @@ function InteractiveWord({
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     if (wordRef.current) {
       gsap.to(wordRef.current, {
         scale: 1,
@@ -157,19 +154,14 @@ function InteractiveWord({
       ref={wordRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`group relative inline-block cursor-pointer font-medium text-[#c8ff3d] transition-colors duration-300 ${className}`}
-      style={{
-        textShadow: isHovered
-          ? "0 0 20px rgba(200, 255, 61, 0.4)"
-          : "0 0 8px rgba(200, 255, 61, 0.15)",
-        transformStyle: "preserve-3d",
-      }}
+      className={`group relative inline-block cursor-pointer font-semibold text-[#1D4ED8] transition-colors duration-300 hover:text-[#FF4D2D] ${className}`}
+      style={{ transformStyle: "preserve-3d" }}
     >
       {word}
       {/* Resting subtle underline */}
-      <span className="absolute -bottom-0.5 left-0 h-px w-full bg-[#c8ff3d]/30" />
+      <span className="absolute -bottom-0.5 left-0 h-px w-full bg-[#1D4ED8]/30" />
       {/* Animated underline expanding from left to right */}
-      <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left scale-x-0 bg-[#c8ff3d] shadow-[0_0_8px_#c8ff3d] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+      <span className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#FF4D2D] transition-transform duration-300 ease-out group-hover:scale-x-100" />
     </span>
   );
 }
@@ -266,7 +258,7 @@ export default function About() {
         const words = bioRef.current.querySelectorAll(".reveal-word");
         gsap.fromTo(
           words,
-          { opacity: 0.18 },
+          { opacity: 0.22 },
           {
             opacity: 1,
             stagger: 0.03,
@@ -338,81 +330,56 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="bg-tech-grid relative min-h-screen w-full overflow-hidden border-t border-white/[0.08] bg-[#0a0a0a] text-[#f2f0e9]"
+      className="bg-tech-grid relative min-h-screen w-full overflow-hidden border-t border-[#111318]/[0.1] bg-[#F4F3EE] text-[#111318]"
     >
-      {/* Embedded rotating gradient-border definition for full self-containment */}
-      <style>{`
-        @property --gradient-angle {
-          syntax: "<angle>";
-          initial-value: 0deg;
-          inherits: false;
-        }
-        @keyframes rotate-gradient {
-          0% {
-            --gradient-angle: 0deg;
-          }
-          100% {
-            --gradient-angle: 360deg;
-          }
-        }
-        .gradient-border {
-          position: relative;
-          background:
-            linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-            linear-gradient(var(--gradient-angle, 0deg), #c8ff3d, #4d59e3, #ed4059, #c8ff3d) border-box;
-          border: 1px solid transparent;
-          animation: rotate-gradient 6s linear infinite;
-        }
-      `}</style>
-
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1500px] flex-col px-6 py-24 md:px-10 lg:px-14">
         {/* Section Header */}
         <div
           ref={headerRef}
-          className="flex items-center justify-between border-b border-white/[0.08] pb-6"
+          className="flex items-center justify-between border-b border-[#111318]/[0.1] pb-6"
         >
           <div className="flex items-center gap-4">
-            <span className="font-mono text-xs font-medium tracking-[0.3em] text-[#c8ff3d]">
+            <span className="font-mono text-xs font-semibold tracking-[0.3em] text-[#1D4ED8]">
               01 / 04
             </span>
-            <span className="h-px w-8 bg-white/15" />
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+            <span className="h-px w-8 bg-[#111318]/20" />
+            <span className="font-mono text-xs uppercase tracking-[0.3em] text-[#5A5E6B]">
               ABOUT // HOW I THINK
             </span>
           </div>
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.25em] text-[#4d59e3] md:block">
+          <span className="hidden font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-[#FF4D2D] md:block">
             ARCHITECTURE FIRST
           </span>
         </div>
 
         {/* Main Content */}
         <div className="flex flex-1 flex-col justify-center py-16 lg:py-20">
-          {/* Identity / Education Badge with gradient border and backdrop blur */}
+          {/* Identity / Education Badge with Swiss gradient border */}
           <div
             ref={badgeRef}
-            className="gradient-border mb-12 flex w-fit flex-col rounded-lg bg-white/[0.02] shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md"
+            className="gradient-border mb-12 flex w-fit flex-col rounded-xl shadow-[0_14px_34px_-16px_rgba(17,19,24,0.18)]"
           >
-            <div className="flex items-center gap-3 border-b border-white/10 px-5 py-3">
+            <div className="flex items-center gap-3 border-b border-[#111318]/[0.08] px-5 py-3">
               <span className="relative flex h-2 w-2 items-center justify-center">
-                <span className="absolute h-full w-full animate-ping rounded-full bg-[#c8ff3d] opacity-40" />
-                <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d]" />
+                <span className="absolute h-full w-full animate-ping rounded-full bg-[#FF4D2D] opacity-40" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
               </span>
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#f2f0e9]">
+              <span className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#111318]">
                 VISHAL CHOUDHARY
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45 sm:flex-nowrap">
-              <span className="text-white/70">B.TECH CSIT // 2026</span>
-              <span className="hidden h-3 w-px bg-white/15 sm:block" />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] sm:flex-nowrap">
+              <span className="font-medium text-[#111318]/80">B.TECH CSIT // 2026</span>
+              <span className="hidden h-3 w-px bg-[#111318]/15 sm:block" />
               <span
-                className="cursor-help transition-colors hover:text-white"
+                className="cursor-help transition-colors hover:text-[#111318]"
                 title="Marri Laxman Reddy Institute of Technology and Management"
               >
                 MLRITM, HYDERABAD
               </span>
-              <span className="hidden h-3 w-px bg-white/15 sm:block" />
-              <span className="text-[#c8ff3d]">
+              <span className="hidden h-3 w-px bg-[#111318]/15 sm:block" />
+              <span className="font-bold text-[#1D4ED8]">
                 CGPA: <span ref={cgpaRef}>{cgpaValue}</span>
               </span>
             </div>
@@ -421,7 +388,7 @@ export default function About() {
           {/* Headline with curtain-lift line-by-line reveal */}
           <h2
             ref={headlineRef}
-            className="max-w-5xl text-[clamp(2.5rem,6vw,6.2rem)] font-black leading-[0.95] tracking-[-0.05em]"
+            className="max-w-5xl text-[clamp(2.5rem,6vw,6.2rem)] font-black leading-[0.95] tracking-[-0.05em] text-[#111318]"
           >
             <span className="block overflow-hidden py-1">
               <span className="about-headline-line block">
@@ -431,7 +398,7 @@ export default function About() {
             <span className="block overflow-hidden py-1">
               <span className="about-headline-line block">
                 complex logic feel{" "}
-                <span className="text-[#c8ff3d]">effortless.</span>
+                <span className="text-[#1D4ED8]">effortless.</span>
               </span>
             </span>
           </h2>
@@ -441,7 +408,7 @@ export default function About() {
             {/* Word-by-word progressive reveal bio */}
             <p
               ref={bioRef}
-              className="max-w-2xl text-base leading-relaxed text-white/60 md:text-xl md:leading-relaxed"
+              className="max-w-2xl text-base leading-relaxed text-[#111318]/80 md:text-xl md:leading-relaxed"
             >
               {BIO_PARAGRAPH.map((segment, sIdx) => {
                 if (segment.type === "text") {
@@ -469,30 +436,30 @@ export default function About() {
 
             {/* Aligned Engineering Pillars */}
             <div ref={pillarsRef} className="flex flex-col gap-6 font-mono">
-              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-white/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#c8ff3d] hover:pl-[14px] hover:shadow-[-6px_0_20px_-2px_rgba(200,255,61,0.3)]">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#c8ff3d]">
-                  01 / AI & BACKEND SYSTEMS
+              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-[#111318]/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#1D4ED8] hover:pl-[14px]">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1D4ED8]">
+                  01 / AI &amp; BACKEND SYSTEMS
                 </span>
-                <span className="text-sm text-white/80 transition-colors duration-300 group-hover:text-white">
-                  FastAPI, PostgreSQL/PostGIS & Semantic Search
-                </span>
-              </div>
-
-              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-white/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#ed4059] hover:pl-[14px] hover:shadow-[-6px_0_20px_-2px_rgba(237,64,89,0.3)]">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#ed4059]">
-                  02 / NETWORK & CORE CS
-                </span>
-                <span className="text-sm text-white/80 transition-colors duration-300 group-hover:text-white">
-                  Java, Packet Inspection (Pcap4J) & DSA
+                <span className="text-sm text-[#5A5E6B] transition-colors duration-300 group-hover:text-[#111318]">
+                  FastAPI, PostgreSQL/PostGIS &amp; Semantic Search
                 </span>
               </div>
 
-              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-white/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#4d59e3] hover:pl-[14px] hover:shadow-[-6px_0_20px_-2px_rgba(77,89,227,0.3)]">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#4d59e3]">
+              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-[#111318]/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#FF4D2D] hover:pl-[14px]">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#FF4D2D]">
+                  02 / NETWORK &amp; CORE CS
+                </span>
+                <span className="text-sm text-[#5A5E6B] transition-colors duration-300 group-hover:text-[#111318]">
+                  Java, Packet Inspection (Pcap4J) &amp; DSA
+                </span>
+              </div>
+
+              <div className="about-pillar group flex cursor-default flex-col gap-1.5 border-l-2 border-[#111318]/15 pl-4 transition-all duration-300 hover:translate-x-2 hover:border-l-4 hover:border-[#0F766E] hover:pl-[14px]">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0F766E]">
                   03 / INTERACTIVE FRONTEND
                 </span>
-                <span className="text-sm text-white/80 transition-colors duration-300 group-hover:text-white">
-                  Next.js, TypeScript, GSAP & HTML5 Canvas
+                <span className="text-sm text-[#5A5E6B] transition-colors duration-300 group-hover:text-[#111318]">
+                  Next.js, TypeScript, GSAP &amp; HTML5 Canvas
                 </span>
               </div>
             </div>
@@ -506,20 +473,20 @@ export default function About() {
             {SYSTEM_STEPS.map((item) => (
               <TiltCard
                 key={item.id}
-                className="system-node group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-white/[0.015] p-6 transition-colors duration-300 hover:border-[#c8ff3d]/40 hover:bg-white/[0.03] will-change-transform"
+                className="system-node group relative flex flex-col justify-between rounded-2xl border border-[#111318]/12 bg-white/85 p-6 shadow-[0_8px_24px_-14px_rgba(17,19,24,0.12)] transition-all duration-300 hover:border-[#1D4ED8]/50 hover:bg-white hover:shadow-[0_18px_36px_-14px_rgba(29,78,216,0.16)] will-change-transform"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#c8ff3d]">
+                  <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-[#1D4ED8]">
                     STEP // {item.step}
                   </span>
-                  <span className="h-2 w-2 rounded-full bg-white/20 transition-all duration-300 group-hover:bg-[#c8ff3d] group-hover:shadow-[0_0_10px_#c8ff3d]" />
+                  <span className="h-2 w-2 rounded-full bg-[#111318]/15 transition-all duration-300 group-hover:bg-[#FF4D2D] group-hover:shadow-[0_0_8px_rgba(255,77,45,0.5)]" />
                 </div>
 
                 <div className="mt-8">
-                  <h3 className="font-mono text-sm font-bold tracking-[0.2em] text-white">
+                  <h3 className="font-mono text-sm font-bold tracking-[0.2em] text-[#111318]">
                     {item.label}
                   </h3>
-                  <p className="mt-2 text-xs leading-5 text-white/50 transition-colors group-hover:text-white/75">
+                  <p className="mt-2 text-xs leading-5 text-[#5A5E6B] transition-colors group-hover:text-[#111318]/80">
                     {item.desc}
                   </p>
                 </div>

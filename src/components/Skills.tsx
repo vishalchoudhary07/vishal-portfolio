@@ -1,3 +1,4 @@
+// src/components/Skills.tsx
 "use client";
 
 import { IconType } from "react-icons";
@@ -94,11 +95,10 @@ const skillGroups: SkillGroup[] = [
  */
 function TechMarquee() {
   const allSkills = skillGroups.flatMap((g) => g.skills);
-  // Duplicate for seamless loop
   const doubled = [...allSkills, ...allSkills];
 
   return (
-    <div className="relative w-full overflow-hidden border-b border-white/[0.08] py-6">
+    <div className="relative w-full overflow-hidden border-b border-[#111318]/[0.1] py-6">
       <style>{`
         @keyframes marquee {
           from { transform: translateX(0); }
@@ -112,24 +112,24 @@ function TechMarquee() {
         }
       `}</style>
 
-      {/* Edge gradient masks */}
+      {/* Edge gradient masks matching warm paper background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-r from-[#0a0a0a] to-transparent"
+        className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-24 bg-gradient-to-r from-[#F4F3EE] to-transparent"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-l from-[#0a0a0a] to-transparent"
+        className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-24 bg-gradient-to-l from-[#F4F3EE] to-transparent"
       />
 
       <div className="flex w-max animate-marquee items-center gap-12">
         {doubled.map((skill, i) => (
           <div
             key={`${skill.name}-${i}`}
-            className="flex shrink-0 items-center gap-3 text-white/20 transition-colors duration-300 hover:text-white/70"
+            className="flex shrink-0 items-center gap-3 text-[#111318]/35 transition-colors duration-300 hover:text-[#1D4ED8]"
           >
             {skill.icon && <skill.icon className="h-5 w-5" />}
-            <span className="font-mono text-xs uppercase tracking-widest">
+            <span className="font-mono text-xs font-medium uppercase tracking-widest">
               {skill.name}
             </span>
           </div>
@@ -140,7 +140,7 @@ function TechMarquee() {
 }
 
 /**
- * Skill Pill with Magnetic Hover + Radial Glow
+ * Skill Pill with Magnetic Hover + Subtle Cobalt Glow
  */
 function SkillPill({ skill }: { skill: Skill }) {
   const pillRef = useRef<HTMLDivElement>(null);
@@ -151,7 +151,6 @@ function SkillPill({ skill }: { skill: Skill }) {
     const rect = el.getBoundingClientRect();
     const x = e.clientX - (rect.left + rect.width / 2);
     const y = e.clientY - (rect.top + rect.height / 2);
-    // Magnitude ~5px toward cursor
     const moveX = (x / (rect.width / 2)) * 5;
     const moveY = (y / (rect.height / 2)) * 5;
 
@@ -182,7 +181,7 @@ function SkillPill({ skill }: { skill: Skill }) {
       data-skill-item
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group relative flex cursor-default select-none items-center gap-3 rounded-full border border-white/[0.12] bg-white/[0.015] px-5 py-3.5 text-[15px] text-white/60 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#c8ff3d]/50 hover:bg-[#c8ff3d]/[0.04] hover:text-white hover:shadow-[0_10px_30px_rgba(200,255,61,0.08)]"
+      className="group relative flex cursor-default select-none items-center gap-3 rounded-full border border-[#111318]/12 bg-white/90 px-5 py-3.5 text-[15px] font-medium text-[#111318]/80 shadow-[0_6px_18px_-12px_rgba(17,19,24,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#1D4ED8]/55 hover:bg-white hover:text-[#111318] hover:shadow-[0_14px_28px_-12px_rgba(29,78,216,0.2)]"
     >
       {/* Interactive Radial Glow on Hover */}
       <div
@@ -190,12 +189,12 @@ function SkillPill({ skill }: { skill: Skill }) {
         className="pointer-events-none absolute -inset-2 -z-10 rounded-full opacity-0 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(circle, rgba(200,255,61,0.18) 0%, rgba(200,255,61,0.03) 50%, transparent 70%)",
+            "radial-gradient(circle, rgba(29,78,216,0.12) 0%, rgba(29,78,216,0.03) 50%, transparent 70%)",
         }}
       />
 
       {/* Technology Mark / Icon */}
-      <span className="flex h-6 min-w-6 items-center justify-center rounded-md border border-white/[0.16] bg-white/[0.04] px-1.5 font-mono text-[9px] font-bold tracking-tight text-white/45 transition-all duration-300 group-hover:border-[#c8ff3d]/60 group-hover:bg-[#c8ff3d]/15 group-hover:text-[#c8ff3d]">
+      <span className="flex h-6 min-w-6 items-center justify-center rounded-md border border-[#111318]/12 bg-[#F4F3EE] px-1.5 font-mono text-[9px] font-bold tracking-tight text-[#111318]/65 transition-all duration-300 group-hover:border-[#1D4ED8] group-hover:bg-[#1D4ED8] group-hover:text-white">
         {skill.icon ? (
           <skill.icon className="h-3.5 w-3.5" />
         ) : (
@@ -206,7 +205,7 @@ function SkillPill({ skill }: { skill: Skill }) {
       <span>{skill.name}</span>
 
       {/* Hover indicator dot */}
-      <span className="ml-1 h-1.5 w-1.5 rounded-full bg-[#c8ff3d] opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:shadow-[0_0_8px_#c8ff3d]" />
+      <span className="ml-1 h-1.5 w-1.5 rounded-full bg-[#FF4D2D] opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:shadow-[0_0_8px_rgba(255,77,45,0.6)]" />
     </div>
   );
 }
@@ -214,7 +213,6 @@ function SkillPill({ skill }: { skill: Skill }) {
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Typewriter Bottom Message State
   const [displayedText, setDisplayedText] = useState(
     "CONSTANTLY LEARNING / CONSTANTLY BUILDING"
   );
@@ -243,7 +241,6 @@ export default function Skills() {
       const groups = gsap.utils.toArray<HTMLElement>("[data-skill-group]");
 
       groups.forEach((group, groupIdx) => {
-        // Group card clip-path reveal (curtain lift)
         gsap.fromTo(
           group,
           {
@@ -266,7 +263,6 @@ export default function Skills() {
           }
         );
 
-        // Skill pills bounce in with elastic easing
         const pills = group.querySelectorAll<HTMLElement>("[data-skill-item]");
         gsap.fromTo(
           pills,
@@ -312,7 +308,6 @@ export default function Skills() {
     setMessageIndex(nextIdx);
     const targetText = messages[nextIdx];
 
-    // Erase character by character
     let current = displayedText;
     intervalRefs.current.erase = setInterval(() => {
       if (current.length > 0) {
@@ -320,7 +315,6 @@ export default function Skills() {
         setDisplayedText(current);
       } else {
         if (intervalRefs.current.erase) clearInterval(intervalRefs.current.erase);
-        // Type character by character
         let charIndex = 0;
         intervalRefs.current.type = setInterval(() => {
           if (charIndex <= targetText.length) {
@@ -339,39 +333,31 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="stack"
-      className="bg-tech-grid relative w-full overflow-hidden bg-[#0a0a0a] text-white"
+      className="bg-tech-grid relative w-full overflow-hidden border-t border-[#111318]/[0.1] bg-[#F4F3EE] text-[#111318]"
     >
-      {/* Background Grid Pattern */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, #ffffff 1px, transparent 1px),
-            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
-          `,
-          backgroundSize: "86px 86px",
-        }}
-      />
-
       {/* HEADER */}
       <div className="relative mx-auto max-w-[1700px] px-8 pt-28 md:px-12 lg:px-16">
-        <div className="flex items-end justify-between border-b border-white/[0.08] pb-8">
+        <div className="flex items-end justify-between border-b border-[#111318]/[0.1] pb-8">
           <div>
             <div className="mb-5 flex items-center gap-4">
-              <span className="h-px w-10 bg-[#c8ff3d]" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/35">
+              <span className="font-mono text-xs font-semibold tracking-[0.3em] text-[#1D4ED8]">
+                03 / 04
+              </span>
+              <span className="h-px w-8 bg-[#111318]/20" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#5A5E6B]">
                 Technical Stack
               </span>
             </div>
 
-            <h2 className="text-[clamp(3.5rem,8vw,8rem)] font-black leading-[0.85] tracking-[-0.07em]">
+            <h2 className="text-[clamp(3.5rem,8vw,8rem)] font-black leading-[0.85] tracking-[-0.07em] text-[#111318]">
               Tools I{" "}
-              <span className="text-white/25">build with.</span>
+              <span className="text-[#111318]/25">
+                build with<span className="text-[#FF4D2D]">.</span>
+              </span>
             </h2>
           </div>
 
-          <div className="hidden pb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-white/25 md:block">
+          <div className="hidden pb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#5A5E6B] md:block">
             STACK / 2026
           </div>
         </div>
@@ -386,18 +372,18 @@ export default function Skills() {
           <div
             key={group.number}
             data-skill-group
-            className="relative min-h-[300px] border-b border-white/[0.08] px-8 py-12 md:px-12 lg:px-16"
+            className="relative min-h-[300px] border-b border-[#111318]/[0.1] px-8 py-12 md:px-12 md:odd:border-r md:odd:border-[#111318]/[0.1] lg:px-16"
           >
             {/* Group Header */}
             <div className="mb-14 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="font-mono text-[12px] font-medium tracking-[0.25em] text-[#c8ff3d]">
+                <span className="font-mono text-[12px] font-semibold tracking-[0.25em] text-[#1D4ED8]">
                   {group.number}
                 </span>
-                <span className="h-px w-12 bg-white/15" />
+                <span className="h-px w-12 bg-[#111318]/20" />
               </div>
 
-              <span className="font-mono text-[16px] font-semibold uppercase tracking-[0.25em] text-white/55">
+              <span className="font-mono text-[16px] font-bold uppercase tracking-[0.25em] text-[#111318]/75">
                 {group.label}
               </span>
             </div>
@@ -418,23 +404,23 @@ export default function Skills() {
           type="button"
           onClick={handleMessageClick}
           aria-label="Toggle philosophy statement"
-          className="group flex w-full cursor-pointer items-center justify-between border-t border-white/[0.08] pt-7 text-left"
+          className="group flex w-full cursor-pointer items-center justify-between border-t border-[#111318]/[0.1] pt-7 text-left"
         >
           <div className="flex items-center gap-5">
             {/* Animated Dot */}
             <span className="relative flex h-3 w-3 items-center justify-center">
-              <span className="absolute h-3 w-3 rounded-full bg-[#c8ff3d]/20 transition-transform duration-500 group-hover:scale-[2]" />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-[#c8ff3d]" />
+              <span className="absolute h-3 w-3 rounded-full bg-[#FF4D2D]/20 transition-transform duration-500 group-hover:scale-[2]" />
+              <span className="relative h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
             </span>
 
-            <span className="font-mono text-[15px] font-medium uppercase tracking-[0.22em] text-white/50 transition-colors duration-300 group-hover:text-white/80 md:text-[17px]">
+            <span className="font-mono text-[15px] font-medium uppercase tracking-[0.22em] text-[#5A5E6B] transition-colors duration-300 group-hover:text-[#111318] md:text-[17px]">
               {displayedText}
-              <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse bg-[#c8ff3d]/70 align-middle" />
+              <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse bg-[#1D4ED8] align-middle" />
             </span>
           </div>
 
           {/* Interactive Arrow */}
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.12] text-white/30 transition-all duration-300 group-hover:rotate-45 group-hover:border-[#c8ff3d]/40 group-hover:bg-[#c8ff3d]/10 group-hover:text-[#c8ff3d]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#111318]/15 bg-white/75 text-[#111318]/50 transition-all duration-300 group-hover:rotate-45 group-hover:border-[#1D4ED8] group-hover:bg-[#1D4ED8] group-hover:text-white">
             ↗
           </span>
         </button>
@@ -442,12 +428,12 @@ export default function Skills() {
 
       {/* STATUS */}
       <div className="relative mx-auto flex max-w-[1700px] items-center justify-between px-8 pb-8 md:px-12 lg:px-16">
-        <span className="font-mono text-[12px] uppercase tracking-[0.3em] text-white/35">
+        <span className="font-mono text-[12px] uppercase tracking-[0.3em] text-[#5A5E6B]">
           Always learning. Always building.
         </span>
 
-        <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-white/25">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#c8ff3d] shadow-[0_0_10px_rgba(200,255,61,0.5)]" />
+        <span className="flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-[#111318]/60">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
           Stack online
         </span>
       </div>

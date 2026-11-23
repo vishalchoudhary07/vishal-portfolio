@@ -9,17 +9,17 @@ const EMAIL = "vishalchoudhary7757@gmail.com";
 const GITHUB_URL = "https://github.com/vishalchoudhary07";
 
 /* ==================================================================
-   COLOR PALETTE
+   SWISS ENGINEERING PALETTE
 ================================================================== */
 const PALETTE = {
-  red: "#ED4059",
-  blue: "#4D59E3",
-  lime: "#C6E354",
-  light: "#F6F6F6",
+  ink: "#111318",
+  cobalt: "#1D4ED8",
+  signal: "#FF4D2D",
+  paper: "#F4F3EE",
 } as const;
 
 /* ==================================================================
-   INTERACTIVE CONTACT TERMINAL
+   INTERACTIVE CONTACT TERMINAL (Dark Instrument Panel)
 ================================================================== */
 interface TerminalLine {
   id: number;
@@ -29,7 +29,6 @@ interface TerminalLine {
 }
 
 const COMMAND_LIST = ["help", "whoami", "status", "socials", "ping", "copy", "send", "clear"];
-
 const QUICK_COMMANDS = ["whoami", "status", "socials", "ping", "copy", "help"];
 
 const INITIAL_LINES: TerminalLine[] = [
@@ -56,14 +55,12 @@ function ContactTerminal() {
     ]);
   };
 
-  // Auto-scroll terminal output container only
   useEffect(() => {
     if (outputRef.current) {
       outputRef.current.scrollTop = outputRef.current.scrollHeight;
     }
   }, [lines]);
 
-  // Cleanup any active ping timers on unmount
   useEffect(() => {
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
@@ -228,16 +225,16 @@ function ContactTerminal() {
 
   return (
     <div className="mt-16 lg:mt-20">
-      <div className="relative overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#111111]/90">
+      <div className="relative overflow-hidden rounded-[24px] border border-[#111318] bg-[#111318] text-[#F4F3EE] shadow-[0_24px_55px_-20px_rgba(17,19,24,0.3)]">
         {/* Top bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5" aria-hidden="true">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ED4059]/80" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#C6E354]/80" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#4D59E3]/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FF4D2D]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#60A5FA]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#34D399]" />
             </div>
-            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
               CONTACT_SHELL // INTERACTIVE
             </span>
           </div>
@@ -246,14 +243,14 @@ function ContactTerminal() {
             <button
               type="button"
               onClick={() => runCommand("clear")}
-              className="cursor-pointer rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 transition-all hover:border-[#C6E354]/50 hover:text-white"
+              className="cursor-pointer rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/55 transition-all hover:border-[#60A5FA]/70 hover:text-white"
             >
               CLEAR
             </button>
-            <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C6E354]">
+            <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#34D399]">
               <span className="relative flex h-2 w-2">
-                <span className="absolute h-full w-full animate-ping rounded-full bg-[#C6E354] opacity-40" />
-                <span className="h-2 w-2 rounded-full bg-[#C6E354]" />
+                <span className="absolute h-full w-full animate-ping rounded-full bg-[#34D399] opacity-40" />
+                <span className="h-2 w-2 rounded-full bg-[#34D399]" />
               </span>
               ONLINE
             </span>
@@ -265,7 +262,6 @@ function ContactTerminal() {
           onClick={handleTerminalClick}
           className="flex h-[320px] cursor-text flex-col justify-between p-6 font-mono text-xs sm:h-[360px] sm:text-[13px]"
         >
-          {/* Output Log */}
           <div
             ref={outputRef}
             data-lenis-prevent
@@ -280,7 +276,7 @@ function ContactTerminal() {
                       target={line.href.startsWith("http") ? "_blank" : undefined}
                       rel={line.href.startsWith("http") ? "noreferrer" : undefined}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-[#C6E354] underline decoration-[#C6E354]/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                      className="text-[#60A5FA] underline decoration-[#60A5FA]/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
                     >
                       {line.text}
                     </a>
@@ -292,12 +288,12 @@ function ContactTerminal() {
                 line.type === "command"
                   ? "text-white font-semibold pt-2"
                   : line.type === "success"
-                  ? "text-[#C6E354]"
+                  ? "text-[#34D399]"
                   : line.type === "error"
-                  ? "text-[#ED4059]"
+                  ? "text-[#FF5E40]"
                   : line.type === "info"
-                  ? "text-[#4D59E3]"
-                  : "text-white/65";
+                  ? "text-[#60A5FA]"
+                  : "text-white/70";
 
               return (
                 <div key={line.id} className={`whitespace-pre-wrap break-words ${colorClass}`}>
@@ -307,10 +303,9 @@ function ContactTerminal() {
             })}
           </div>
 
-          {/* Prompt + Quick Commands */}
-          <div className="mt-4 border-t border-white/[0.07] pt-4">
+          <div className="mt-4 border-t border-white/[0.08] pt-4">
             <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
-              <span className="shrink-0 text-[#C6E354]">visitor@portfolio:~$</span>
+              <span className="shrink-0 text-[#FF5E40]">visitor@portfolio:~$</span>
               <input
                 ref={inputRef}
                 type="text"
@@ -321,11 +316,10 @@ function ContactTerminal() {
                 autoComplete="off"
                 spellCheck={false}
                 aria-label="Contact terminal command input"
-                className="w-full bg-transparent text-[#f2f0e9] placeholder:text-white/25 focus:outline-none"
+                className="w-full bg-transparent text-[#F4F3EE] placeholder:text-white/30 focus:outline-none"
               />
             </form>
 
-            {/* Quick Command Chips */}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {QUICK_COMMANDS.map((cmd) => (
                 <button
@@ -336,7 +330,7 @@ function ContactTerminal() {
                     runCommand(cmd);
                     inputRef.current?.focus();
                   }}
-                  className="cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 font-mono text-[10px] tracking-[0.12em] text-white/55 transition-all hover:border-[#C6E354]/60 hover:bg-[#C6E354]/10 hover:text-[#C6E354]"
+                  className="cursor-pointer rounded-full border border-white/[0.12] bg-white/[0.04] px-3 py-1 font-mono text-[10px] tracking-[0.12em] text-white/65 transition-all hover:border-[#60A5FA]/70 hover:bg-[#60A5FA]/15 hover:text-white"
                 >
                   $ {cmd}
                 </button>
@@ -348,13 +342,13 @@ function ContactTerminal() {
 
       {/* Caption */}
       <div className="mt-4 flex items-start gap-3 pl-2">
-        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C6E354]" />
-        <p className="font-mono text-[11px] text-white/40">
-          <strong className="mr-2 uppercase tracking-wider text-[#C6E354]">
+        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1D4ED8]" />
+        <p className="font-mono text-[11px] text-[#5A5E6B]">
+          <strong className="mr-2 uppercase tracking-wider text-[#1D4ED8]">
             [INTERACTIVE SHELL]
           </strong>
           Supports Tab autocomplete, ↑/↓ history, clickable commands, and direct mail dispatch via{" "}
-          <span className="text-white/70">send &lt;message&gt;</span>.
+          <span className="font-semibold text-[#111318]">send &lt;message&gt;</span>.
         </p>
       </div>
     </div>
@@ -362,7 +356,7 @@ function ContactTerminal() {
 }
 
 /* ==================================================================
-   GRADIENT MESH BACKGROUND
+   GRADIENT MESH BACKGROUND (Subtle Paper Ambient Wash)
 ================================================================== */
 function GradientMesh() {
   const meshRef = useRef<HTMLDivElement>(null);
@@ -389,9 +383,8 @@ function GradientMesh() {
 
   return (
     <div ref={meshRef} aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="mesh-orb absolute left-[10%] top-[20%] h-[400px] w-[400px] rounded-full bg-[#C6E354]/[0.03] blur-[120px]" />
-      <div className="mesh-orb absolute right-[15%] top-[40%] h-[350px] w-[350px] rounded-full bg-[#4D59E3]/[0.04] blur-[100px]" />
-      <div className="mesh-orb absolute bottom-[15%] left-[30%] h-[300px] w-[300px] rounded-full bg-[#ED4059]/[0.03] blur-[110px]" />
+      <div className="mesh-orb absolute left-[8%] top-[15%] h-[420px] w-[420px] rounded-full bg-[#1D4ED8]/[0.05] blur-[120px]" />
+      <div className="mesh-orb absolute right-[12%] top-[38%] h-[360px] w-[360px] rounded-full bg-[#FF4D2D]/[0.05] blur-[110px]" />
     </div>
   );
 }
@@ -473,7 +466,6 @@ export default function Contact() {
   const [headlineText, setHeadlineText] = useState("");
   const [headlineDone, setHeadlineDone] = useState(false);
 
-  // Live clock
   useEffect(() => {
     const update = () => {
       setTime(
@@ -487,7 +479,6 @@ export default function Contact() {
     return () => clearInterval(id);
   }, []);
 
-  // Typewriter headline via IntersectionObserver
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const hasTyped = useRef(false);
 
@@ -527,7 +518,6 @@ export default function Contact() {
     return () => observer.disconnect();
   }, []);
 
-  // Shimmer dot + bounce arrow
   useGSAP(
     () => {
       if (lineRef.current) {
@@ -542,7 +532,7 @@ export default function Contact() {
 
       gsap.set(".shimmer-dot", { opacity: 0 });
       gsap.to(".shimmer-dot", {
-        opacity: 0.8,
+        opacity: 0.9,
         duration: 0.5,
         delay: 1.5,
       });
@@ -565,7 +555,6 @@ export default function Contact() {
     { scope: sectionRef }
   );
 
-  // Checkmark spring on copy
   useEffect(() => {
     if (copied && checkmarkRef.current) {
       gsap.fromTo(
@@ -600,7 +589,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="bg-tech-grid relative w-full overflow-hidden border-t border-white/[0.08] bg-[#0a0a0a] text-[#f2f0e9]"
+      className="bg-tech-grid relative w-full overflow-hidden border-t border-[#111318]/[0.1] bg-[#F4F3EE] text-[#111318]"
     >
       <style>{`
         @keyframes blink {
@@ -615,25 +604,25 @@ export default function Contact() {
       <div className="relative z-10 mx-auto w-full max-w-[1500px] px-6 py-20 md:px-10 lg:px-14">
 
         {/* ============== SECTION HEADER ============== */}
-        <div className="flex items-center justify-between border-b border-white/[0.08] pb-6">
+        <div className="flex items-center justify-between border-b border-[#111318]/[0.1] pb-6">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-xs font-medium tracking-[0.3em] text-[#C6E354]">
+            <span className="font-mono text-xs font-semibold tracking-[0.3em] text-[#1D4ED8]">
               04 / 04
             </span>
-            <span className="h-px w-8 bg-white/15" />
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+            <span className="h-px w-8 bg-[#111318]/20" />
+            <span className="font-mono text-xs uppercase tracking-[0.3em] text-[#5A5E6B]">
               CONTACT
             </span>
           </div>
-          <div className="flex items-center gap-2.5 font-mono text-xs tracking-[0.2em] text-white/50">
-            <span className="h-2 w-2 rounded-full bg-[#C6E354] shadow-[0_0_12px_#C6E354]" />
+          <div className="flex items-center gap-2.5 font-mono text-xs tracking-[0.2em] text-[#111318]/65">
+            <span className="h-2 w-2 rounded-full bg-[#FF4D2D] shadow-[0_0_10px_rgba(255,77,45,0.55)]" />
             AVAILABLE FOR OPPORTUNITIES
           </div>
         </div>
 
         {/* ============== MAIN CTA ============== */}
         <div className="py-16">
-          <div className="mb-6 font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+          <div className="mb-6 font-mono text-xs uppercase tracking-[0.3em] text-[#5A5E6B]">
             Ready to collaborate?
           </div>
 
@@ -644,37 +633,39 @@ export default function Contact() {
             aria-label="LET'S TALK."
           >
             <span>{part1}</span>
-            {part2 && <span className="text-white/30">{part2}</span>}
-            {part3 && <span className="text-[#C6E354]">{part3}</span>}
+            {part2 && <span className="text-[#111318]/25">{part2}</span>}
+            {part3 && <span className="text-[#FF4D2D]">{part3}</span>}
             {headlineDone && (
               <span
                 aria-hidden="true"
-                className="animate-blink ml-2 inline-block h-[0.75em] w-[4px] align-middle bg-[#C6E354] shadow-[0_0_10px_#C6E354] md:w-[6px]"
+                className="animate-blink ml-2 inline-block h-[0.75em] w-[4px] align-middle bg-[#FF4D2D] md:w-[6px]"
               />
             )}
           </h2>
 
           {/* Gradient Line + Shimmer */}
-          <div className="relative mt-12 h-px w-full">
+          <div className="relative mt-12 h-[1.5px] w-full">
             <div
               ref={lineRef}
               className="h-full w-full"
-              style={{ background: `linear-gradient(to right, ${PALETTE.red}, ${PALETTE.blue}, ${PALETTE.lime})` }}
+              style={{
+                background: `linear-gradient(to right, ${PALETTE.ink}, ${PALETTE.cobalt}, ${PALETTE.signal})`,
+              }}
             />
             <div
               aria-hidden="true"
-              className="shimmer-dot pointer-events-none absolute left-0 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-[0_0_10px_white]"
+              className="shimmer-dot pointer-events-none absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#FF4D2D] opacity-0 shadow-[0_0_10px_rgba(255,77,45,0.65)]"
             />
           </div>
 
           {/* Description + Buttons */}
           <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-2xl">
-              <p className="text-lg leading-relaxed text-white/60 md:text-xl">
+              <p className="text-lg leading-relaxed text-[#5A5E6B] md:text-xl">
                 I&apos;m currently open to software engineering roles, backend &amp;
                 AI systems internships, and ambitious technical collaborations.
               </p>
-              <p className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-white/35">
+              <p className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-[#111318]/50">
                 DIRECT INBOX // {EMAIL}
               </p>
             </div>
@@ -684,10 +675,10 @@ export default function Contact() {
                 as="button"
                 type="button"
                 onClick={handleCopyEmail}
-                className={`group flex min-w-[240px] cursor-pointer items-center justify-between rounded-full px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#0a0a0a] transition-all duration-300 ${
+                className={`group flex min-w-[240px] cursor-pointer items-center justify-between rounded-full px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.18em] text-white transition-all duration-300 ${
                   copied
-                    ? "bg-[#d9ff66] shadow-[0_0_30px_rgba(198,227,84,0.65)] ring-2 ring-white/60"
-                    : "bg-[#C6E354] hover:brightness-110"
+                    ? "bg-[#111318] shadow-[0_12px_28px_rgba(17,19,24,0.28)]"
+                    : "bg-[#1D4ED8] hover:bg-[#1e40af]"
                 }`}
               >
                 <span>{copied ? "COPIED TO CLIPBOARD" : "COPY EMAIL"}</span>
@@ -699,7 +690,7 @@ export default function Contact() {
               <MagneticButton
                 as="a"
                 href={`mailto:${EMAIL}`}
-                className="group flex min-w-[240px] items-center justify-between rounded-full border border-white/20 px-6 py-4 font-mono text-xs uppercase tracking-[0.18em] text-white/80 transition-all duration-300 hover:border-[#C6E354] hover:text-[#C6E354]"
+                className="group flex min-w-[240px] items-center justify-between rounded-full border border-[#111318]/20 bg-white/75 px-6 py-4 font-mono text-xs font-medium uppercase tracking-[0.18em] text-[#111318] transition-all duration-300 hover:border-[#FF4D2D] hover:text-[#FF4D2D]"
               >
                 <span>OPEN MAIL APP</span>
                 <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
@@ -710,7 +701,7 @@ export default function Contact() {
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex min-w-[240px] items-center justify-between rounded-full border border-white/15 px-6 py-4 font-mono text-xs uppercase tracking-[0.18em] text-white/70 transition-all duration-300 hover:border-white/45 hover:text-white"
+                className="group flex min-w-[240px] items-center justify-between rounded-full border border-[#111318]/15 px-6 py-4 font-mono text-xs font-medium uppercase tracking-[0.18em] text-[#111318]/75 transition-all duration-300 hover:border-[#111318] hover:bg-[#111318] hover:text-[#F4F3EE]"
               >
                 <span>GITHUB PROFILE</span>
                 <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
@@ -723,13 +714,13 @@ export default function Contact() {
         </div>
 
         {/* ============== FOOTER ============== */}
-        <div className="border-t border-white/[0.08] pt-6">
-          <div className="flex flex-col gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/35 sm:flex-row sm:items-center sm:justify-between">
+        <div className="border-t border-[#111318]/[0.1] pt-6">
+          <div className="flex flex-col gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] sm:flex-row sm:items-center sm:justify-between">
             <span>VISHAL CHOUDHARY // 2026</span>
             <span suppressHydrationWarning>LOCAL TIME: {time || "--:--:--"}</span>
-            <a href="#top" className="group flex items-center gap-2 text-white/50 transition-colors hover:text-[#C6E354]">
+            <a href="#top" className="group flex items-center gap-2 text-[#111318]/70 transition-colors hover:text-[#1D4ED8]">
               <span>BACK TO TOP</span>
-              <span className="back-to-top-arrow inline-block transition-colors group-hover:text-[#C6E354]">↑</span>
+              <span className="back-to-top-arrow inline-block transition-colors group-hover:text-[#1D4ED8]">↑</span>
             </a>
           </div>
         </div>

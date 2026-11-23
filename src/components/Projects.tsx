@@ -8,7 +8,22 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const projects = [
+interface ProjectItem {
+  number: string;
+  category: string;
+  title: string;
+  titleAccent: string;
+  description: string;
+  tech: string[];
+  accent: string;
+  cardAccent: string;
+  note: string;
+  noteText: string;
+  github: string;
+  live?: string;
+}
+
+const projects: ProjectItem[] = [
   {
     number: "01",
     category: "NETWORK SECURITY",
@@ -17,7 +32,8 @@ const projects = [
     description:
       "A Java-based packet inspection firewall that captures live network traffic via Pcap4J and evaluates protocol context before allowing or blocking packets.",
     tech: ["Java", "Pcap4J", "Packet Analysis", "Security Rules"],
-    accent: "#ed4059",
+    accent: "#FF4D2D",
+    cardAccent: "#FF5E40",
     note: "PACKETS → CONTEXT → DECISION",
     noteText:
       "Security should evaluate application context, not just static port numbers.",
@@ -31,7 +47,8 @@ const projects = [
     description:
       "A hybrid semantic and geospatial retrieval engine built to resolve ambiguous natural-language queries to exact Indian post offices.",
     tech: ["FastAPI", "PostgreSQL", "PostGIS", "Sentence Transformers"],
-    accent: "#4d59e3",
+    accent: "#1D4ED8",
+    cardAccent: "#60A5FA",
     note: "SEMANTIC + GEOSPATIAL",
     noteText:
       "Vector embeddings capture intent; PostGIS spatial indexing grounds it in reality.",
@@ -45,11 +62,13 @@ const projects = [
     description:
       "An interactive sorting and algorithm sandbox built with JavaScript and HTML5 Canvas to make time complexity and array mutations tangible.",
     tech: ["JavaScript", "HTML5 Canvas", "Data Structures"],
-    accent: "#c8ff3d",
+    accent: "#0F766E",
+    cardAccent: "#34D399",
     note: "INTERACTIVE SANDBOX",
     noteText:
       "Click the algorithm pills or press RUN in the panel to test the live visualizer.",
     github: "https://github.com/vishalchoudhary07/sorting-visualizer",
+    live: "https://your-sorting-visualizer-url.com",
   },
 ];
 
@@ -58,9 +77,11 @@ const projects = [
  */
 function MagneticSourceButton({
   href,
+  variant = "solid",
   children,
 }: {
   href: string;
+  variant?: "solid" | "live";
   children: React.ReactNode;
 }) {
   const buttonRef = useRef<HTMLAnchorElement>(null);
@@ -95,6 +116,11 @@ function MagneticSourceButton({
     });
   };
 
+  const variantClasses =
+    variant === "live"
+      ? "border border-[#FF4D2D]/50 bg-[#FF4D2D]/10 text-[#FF4D2D] hover:bg-[#FF4D2D] hover:text-white"
+      : "bg-[#111318] text-[#F4F3EE] hover:bg-[#1D4ED8]";
+
   return (
     <a
       ref={buttonRef}
@@ -103,7 +129,7 @@ function MagneticSourceButton({
       rel="noreferrer"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group flex items-center gap-3 rounded-full bg-[#f2f0e9] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.15em] text-[#0a0a0a] transition-colors duration-300 hover:bg-[#c8ff3d]"
+      className={`group flex items-center gap-3 rounded-full px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${variantClasses}`}
     >
       {children}
     </a>
@@ -111,7 +137,7 @@ function MagneticSourceButton({
 }
 
 /**
- * Interactive Module Card with perspective tilt + border glow
+ * Interactive Module Card — dark hardware instrument panel floating on light paper
  */
 function InteractiveCard({
   accent,
@@ -134,7 +160,6 @@ function InteractiveCard({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    // Subtle 3-5 degrees tilt
     const rotateX = -((y - centerY) / centerY) * 4;
     const rotateY = ((x - centerX) / centerX) * 4;
 
@@ -167,18 +192,18 @@ function InteractiveCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="interactive-card relative min-h-[380px] overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#111111]/90 p-6 transition-shadow duration-500 sm:p-8 md:min-h-[440px]"
+      className="interactive-card relative min-h-[380px] overflow-hidden rounded-[24px] border bg-[#111318] p-6 text-[#F4F3EE] transition-shadow duration-500 sm:p-8 md:min-h-[440px]"
       style={{
         transformStyle: "preserve-3d",
         boxShadow: isHovered
-          ? `0 20px 45px -15px ${accent}30, 0 0 25px 0 ${accent}20`
-          : "0 10px 30px -10px rgba(0,0,0,0.5)",
-        borderColor: isHovered ? `${accent}60` : "rgba(255,255,255,0.1)",
+          ? `0 28px 60px -18px rgba(17,19,24,0.38), 0 0 0 1px ${accent}66`
+          : "0 20px 45px -18px rgba(17,19,24,0.28)",
+        borderColor: isHovered ? `${accent}80` : "rgba(17,19,24,0.9)",
       }}
     >
       {/* Top Bar */}
-      <div className="mb-6 flex items-center justify-between border-b border-white/[0.07] pb-4">
-        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
+      <div className="mb-6 flex items-center justify-between border-b border-white/[0.08] pb-4">
+        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
           {"INTERACTIVE_MODULE // "}
           {number}
         </span>
@@ -199,7 +224,7 @@ function InteractiveCard({
               }}
             />
           </span>
-          ● LIVE
+          LIVE
         </span>
       </div>
 
@@ -215,9 +240,8 @@ export default function Projects() {
   const counterRef = useRef<HTMLSpanElement>(null);
   const cursorFollowerRef = useRef<HTMLDivElement>(null);
 
-  const [cursorAccent, setCursorAccent] = useState("#c8ff3d");
+  const [cursorAccent, setCursorAccent] = useState("#1D4ED8");
 
-  // Floating Cursor Following handlers
   const handlePanelMouseMove = (e: React.MouseEvent, accent: string) => {
     if (!cursorFollowerRef.current) return;
     setCursorAccent(accent);
@@ -252,7 +276,6 @@ export default function Projects() {
 
       if (!section || !track) return;
 
-      // Initialize cursor follower centering
       if (cursorFollowerRef.current) {
         gsap.set(cursorFollowerRef.current, {
           xPercent: -50,
@@ -266,7 +289,6 @@ export default function Projects() {
       const watermarks = gsap.utils.toArray<HTMLElement>(".project-watermark");
       const cards = gsap.utils.toArray<HTMLElement>(".interactive-card");
 
-      // Subtle floating effect on interactive cards
       cards.forEach((card, idx) => {
         gsap.to(card, {
           y: -8,
@@ -315,7 +337,6 @@ export default function Projects() {
                 lastActiveIndex = activeIndex;
                 const nextText = `0${activeIndex + 1}`;
 
-                // Sliding counter transition
                 if (counter) {
                   gsap.timeline()
                     .to(counter, {
@@ -348,7 +369,6 @@ export default function Projects() {
           },
         });
 
-        // Parallax on watermarks during horizontal scrub
         watermarks.forEach((wm) => {
           gsap.fromTo(
             wm,
@@ -367,7 +387,7 @@ export default function Projects() {
         });
       });
 
-      // MOBILE & TABLET: Enhanced Vertical Reveal
+      // MOBILE & TABLET: Vertical Reveal
       mm.add("(max-width: 1023px)", () => {
         panels.forEach((panel) => {
           const category = panel.querySelector(".project-category");
@@ -377,7 +397,6 @@ export default function Projects() {
           const interactiveModule = panel.querySelector(".interactive-card");
           const watermark = panel.querySelector(".project-watermark");
 
-          // Watermark scrub parallax on mobile
           if (watermark) {
             gsap.to(watermark, {
               y: -50,
@@ -399,7 +418,6 @@ export default function Projects() {
             },
           });
 
-          // 1. Category label and dot slide in from left
           if (category) {
             tl.fromTo(
               category,
@@ -408,7 +426,6 @@ export default function Projects() {
             );
           }
 
-          // 2. Title uses clip-path reveal (inset from bottom)
           if (title) {
             tl.fromTo(
               title,
@@ -424,7 +441,6 @@ export default function Projects() {
             );
           }
 
-          // 3. Description fades in with blur
           if (desc) {
             tl.fromTo(
               desc,
@@ -440,7 +456,6 @@ export default function Projects() {
             );
           }
 
-          // 4. Tech pills pop in with stagger
           if (pills.length > 0) {
             tl.fromTo(
               pills,
@@ -457,7 +472,6 @@ export default function Projects() {
             );
           }
 
-          // 5. Interactive module scales up from 0.95
           if (interactiveModule) {
             tl.fromTo(
               interactiveModule,
@@ -484,19 +498,19 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="work"
-      className="bg-tech-grid relative min-h-screen w-full overflow-hidden border-t border-white/[0.08] bg-[#0a0a0a] text-[#f2f0e9] lg:h-screen"
+      className="bg-tech-grid relative min-h-screen w-full overflow-hidden border-t border-[#111318]/[0.1] bg-[#F4F3EE] text-[#111318] lg:h-screen"
     >
-      {/* 1. CURSOR "VIEW" TEXT FOLLOWER */}
+      {/* CURSOR "VIEW" FOLLOWER */}
       <div
         ref={cursorFollowerRef}
         aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-20 w-20 items-center justify-center rounded-full shadow-2xl backdrop-blur-sm lg:flex"
+        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-20 w-20 items-center justify-center rounded-full shadow-xl lg:flex"
         style={{
           backgroundColor: cursorAccent,
-          boxShadow: `0 0 35px ${cursorAccent}66`,
+          boxShadow: `0 12px 30px ${cursorAccent}44`,
         }}
       >
-        <span className="font-mono text-xs font-black tracking-widest text-[#0a0a0a]">
+        <span className="font-mono text-xs font-bold tracking-widest text-white">
           VIEW →
         </span>
       </div>
@@ -504,21 +518,21 @@ export default function Projects() {
       {/* Top Section Header */}
       <div className="relative z-30 mx-auto flex max-w-[1500px] items-center justify-between px-6 pt-20 md:px-10 lg:absolute lg:left-0 lg:right-0 lg:top-20 lg:px-14 lg:pt-0">
         <div className="flex items-center gap-4">
-          <span className="font-mono text-xs font-medium tracking-[0.3em] text-[#c8ff3d]">
+          <span className="font-mono text-xs font-semibold tracking-[0.3em] text-[#1D4ED8]">
             02 / 04
           </span>
-          <span className="h-px w-8 bg-white/15" />
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+          <span className="h-px w-8 bg-[#111318]/20" />
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-[#5A5E6B]">
             SELECTED WORK
           </span>
         </div>
 
-        <span className="hidden font-mono text-[10px] uppercase tracking-[0.25em] text-white/30 lg:block">
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.25em] text-[#5A5E6B]/80 lg:block">
           SCROLL TO EXPLORE →
         </span>
       </div>
 
-      {/* Track: Vertical Stack on Mobile, 300vw Horizontal Track on Desktop */}
+      {/* Horizontal / Vertical Track */}
       <div
         ref={trackRef}
         className="relative z-10 flex flex-col gap-20 py-12 lg:h-full lg:w-[300vw] lg:flex-row lg:gap-0 lg:py-0"
@@ -530,10 +544,10 @@ export default function Projects() {
             onMouseLeave={handlePanelMouseLeave}
             className="project-panel relative flex w-full shrink-0 items-center lg:h-screen lg:w-screen"
           >
-            {/* 2. Giant Watermark Number with Parallax */}
+            {/* Giant Watermark Number */}
             <div
               aria-hidden="true"
-              className="project-watermark pointer-events-none absolute -bottom-10 left-5 font-black leading-none tracking-[-0.09em] text-white/[0.025] lg:left-14"
+              className="project-watermark pointer-events-none absolute -bottom-10 left-5 font-black leading-none tracking-[-0.09em] text-[#111318]/[0.04] lg:left-14"
               style={{ fontSize: "clamp(12rem, 26vw, 30rem)" }}
             >
               {project.number}
@@ -546,24 +560,21 @@ export default function Projects() {
                   <div className="project-category mb-5 flex items-center gap-3">
                     <span
                       className="h-2 w-2 rounded-full"
-                      style={{
-                        backgroundColor: project.accent,
-                        boxShadow: `0 0 12px ${project.accent}`,
-                      }}
+                      style={{ backgroundColor: project.accent }}
                     />
-                    <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/50">
+                    <span className="font-mono text-[11px] font-medium uppercase tracking-[0.28em] text-[#5A5E6B]">
                       {project.number} {"//"} {project.category}
                     </span>
                   </div>
 
                   <h2 className="project-title max-w-[700px] text-[clamp(2.8rem,6vw,6.8rem)] font-black leading-[0.88] tracking-[-0.06em]">
-                    <span className="block text-[#f2f0e9]">{project.title}</span>
+                    <span className="block text-[#111318]">{project.title}</span>
                     <span className="block" style={{ color: project.accent }}>
                       {project.titleAccent}
                     </span>
                   </h2>
 
-                  <p className="project-desc mt-6 max-w-[580px] text-base leading-7 text-white/60 md:text-lg md:leading-8">
+                  <p className="project-desc mt-6 max-w-[580px] text-base leading-7 text-[#5A5E6B] md:text-lg md:leading-8">
                     {project.description}
                   </p>
 
@@ -572,14 +583,14 @@ export default function Projects() {
                     {project.tech.map((item) => (
                       <span
                         key={item}
-                        className="project-pill rounded-full border border-white/10 bg-white/[0.02] px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/55"
+                        className="project-pill rounded-full border border-[#111318]/15 bg-white/80 px-3.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#111318]/75"
                       >
                         {item}
                       </span>
                     ))}
                   </div>
 
-                  {/* Action Links on Every Project */}
+                  {/* Action Links */}
                   <div className="mt-8 flex flex-wrap items-center gap-3">
                     <MagneticSourceButton href={project.github}>
                       Source Code
@@ -587,15 +598,28 @@ export default function Projects() {
                         ↗
                       </span>
                     </MagneticSourceButton>
+
+                    {project.live && (
+                      <MagneticSourceButton href={project.live} variant="live">
+                        <span className="relative flex h-2 w-2 items-center justify-center">
+                          <span className="absolute h-full w-full animate-ping rounded-full bg-current opacity-75" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        </span>
+                        Live Demo
+                        <span className="transition-transform duration-300 group-hover:translate-x-1">
+                          ↗
+                        </span>
+                      </MagneticSourceButton>
+                    )}
                   </div>
                 </div>
 
-                {/* Right Column: Interactive System Schematic */}
+                {/* Right Column: Dark Interactive System Module */}
                 <div className="relative z-10">
-                  <InteractiveCard accent={project.accent} number={project.number}>
-                    {index === 0 && <FirewallVisual accent={project.accent} />}
-                    {index === 1 && <PostOfficeVisual accent={project.accent} />}
-                    {index === 2 && <SortingVisual accent={project.accent} />}
+                  <InteractiveCard accent={project.cardAccent} number={project.number}>
+                    {index === 0 && <FirewallVisual accent={project.cardAccent} />}
+                    {index === 1 && <PostOfficeVisual accent={project.cardAccent} />}
+                    {index === 2 && <SortingVisual accent={project.cardAccent} />}
                   </InteractiveCard>
 
                   {/* Architectural Note */}
@@ -604,7 +628,7 @@ export default function Projects() {
                       className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                       style={{ backgroundColor: project.accent }}
                     />
-                    <p className="font-mono text-[11px] text-white/40">
+                    <p className="font-mono text-[11px] text-[#5A5E6B]">
                       <strong
                         className="mr-2 uppercase tracking-wider"
                         style={{ color: project.accent }}
@@ -621,30 +645,30 @@ export default function Projects() {
         ))}
       </div>
 
-      {/* 3. Desktop Bottom Progress Bar with Sliding Counter */}
+      {/* Desktop Bottom Progress Bar */}
       <div className="absolute bottom-7 left-14 right-14 z-30 hidden lg:block">
         <div className="flex items-end justify-between">
           <div className="flex items-center gap-3 font-mono text-xs tracking-[0.2em]">
             <div className="relative h-5 w-7 overflow-hidden">
               <span
                 ref={counterRef}
-                className="absolute inset-0 flex items-center justify-center font-bold text-[#c8ff3d]"
+                className="absolute inset-0 flex items-center justify-center font-bold text-[#1D4ED8]"
               >
                 01
               </span>
             </div>
-            <span className="text-white/20">/</span>
-            <span className="text-white/35">03</span>
+            <span className="text-[#111318]/25">/</span>
+            <span className="text-[#5A5E6B]">03</span>
           </div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/25">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#5A5E6B]/80">
             INTERACTIVE SYSTEM PREVIEWS
           </span>
         </div>
 
-        <div className="mt-3 h-px w-full bg-white/[0.08]">
+        <div className="mt-3 h-[1.5px] w-full bg-[#111318]/[0.1]">
           <div
             ref={progressRef}
-            className="h-full w-full scale-x-0 bg-[#c8ff3d]"
+            className="h-full w-full scale-x-0 bg-[#1D4ED8]"
           />
         </div>
       </div>
@@ -653,7 +677,7 @@ export default function Projects() {
 }
 
 /* ==================================================================
-   01. INTERACTIVE FIREWALL PACKET MONITOR
+1. INTERACTIVE FIREWALL PACKET MONITOR
 ================================================================== */
 const INITIAL_PACKETS = [
   { id: 1, ip: "192.168.1.14", proto: "TCP :443", context: "TLS Handshake", status: "ALLOW" },
@@ -685,10 +709,10 @@ function FirewallVisual({ accent }: { accent: string }) {
               className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.15em] transition-all"
               style={{
                 borderColor:
-                  filter === mode ? accent : "rgba(255,255,255,0.1)",
+                  filter === mode ? accent : "rgba(255,255,255,0.12)",
                 backgroundColor:
-                  filter === mode ? `${accent}20` : "transparent",
-                color: filter === mode ? "#fff" : "rgba(255,255,255,0.45)",
+                  filter === mode ? `${accent}24` : "transparent",
+                color: filter === mode ? "#fff" : "rgba(255,255,255,0.5)",
               }}
             >
               {mode}
@@ -701,17 +725,17 @@ function FirewallVisual({ accent }: { accent: string }) {
         {filtered.map((pkt) => (
           <div
             key={pkt.id}
-            className="grid grid-cols-[1.1fr_0.8fr_1.2fr_auto] items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.015] px-3.5 py-2.5 font-mono text-[11px]"
+            className="grid grid-cols-[1.1fr_0.8fr_1.2fr_auto] items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] px-3.5 py-2.5 font-mono text-[11px]"
           >
-            <span className="text-white/75">{pkt.ip}</span>
-            <span className="text-white/35">{pkt.proto}</span>
-            <span className="truncate text-white/50">{pkt.context}</span>
+            <span className="text-white/80">{pkt.ip}</span>
+            <span className="text-white/40">{pkt.proto}</span>
+            <span className="truncate text-white/55">{pkt.context}</span>
             <span
               className="rounded px-2 py-0.5 text-[10px] font-bold"
               style={{
-                color: pkt.status === "BLOCK" ? accent : "#c8ff3d",
+                color: pkt.status === "BLOCK" ? accent : "#34D399",
                 backgroundColor:
-                  pkt.status === "BLOCK" ? `${accent}18` : "#c8ff3d18",
+                  pkt.status === "BLOCK" ? `${accent}1F` : "#34D3991F",
               }}
             >
               {pkt.status}
@@ -720,7 +744,7 @@ function FirewallVisual({ accent }: { accent: string }) {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between border-t border-white/[0.07] pt-4 font-mono text-[10px] text-white/30">
+      <div className="mt-6 flex items-center justify-between border-t border-white/[0.08] pt-4 font-mono text-[10px] text-white/35">
         <span>PCAP4J_INTERFACE: eth0</span>
         <span>SHOWING {filtered.length} / 5 PACKETS</span>
       </div>
@@ -729,7 +753,7 @@ function FirewallVisual({ accent }: { accent: string }) {
 }
 
 /* ==================================================================
-   02. INTERACTIVE AI POST OFFICE SEMANTIC SEARCH
+02. INTERACTIVE AI POST OFFICE SEMANTIC SEARCH
 ================================================================== */
 const SAMPLE_QUERIES = [
   {
@@ -767,9 +791,8 @@ function PostOfficeVisual({ accent }: { accent: string }) {
 
   return (
     <div>
-      {/* Preset Query Selector */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">
+        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/40">
           TEST QUERY:
         </span>
         {SAMPLE_QUERIES.map((q, idx) => (
@@ -780,10 +803,10 @@ function PostOfficeVisual({ accent }: { accent: string }) {
             className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] transition-all"
             style={{
               borderColor:
-                selectedIdx === idx ? accent : "rgba(255,255,255,0.1)",
+                selectedIdx === idx ? accent : "rgba(255,255,255,0.12)",
               backgroundColor:
-                selectedIdx === idx ? `${accent}25` : "transparent",
-              color: selectedIdx === idx ? "#fff" : "rgba(255,255,255,0.45)",
+                selectedIdx === idx ? `${accent}26` : "transparent",
+              color: selectedIdx === idx ? "#fff" : "rgba(255,255,255,0.5)",
             }}
           >
             {q.label}
@@ -791,12 +814,11 @@ function PostOfficeVisual({ accent }: { accent: string }) {
         ))}
       </div>
 
-      {/* Active Natural Language Query Box */}
-      <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
+      <div className="rounded-xl border border-white/10 bg-black/35 p-4">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/40">
           NATURAL LANGUAGE INPUT
         </span>
-        <p className="mt-1.5 font-mono text-xs text-white/85">
+        <p className="mt-1.5 font-mono text-xs text-white/90">
           &ldquo;{activeSample.query}&rdquo;
         </p>
       </div>
@@ -814,24 +836,23 @@ function PostOfficeVisual({ accent }: { accent: string }) {
         </span>
       </div>
 
-      {/* Ranked Results */}
       <div className="space-y-2.5">
         {activeSample.results.map((item, i) => (
           <div
             key={item.name}
-            className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.015] px-4 py-2.5"
+            className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-2.5"
           >
             <div>
-              <p className="text-xs font-medium text-white/80">{item.name}</p>
-              <p className="font-mono text-[10px] text-white/35">
+              <p className="text-xs font-medium text-white/85">{item.name}</p>
+              <p className="font-mono text-[10px] text-white/40">
                 Radius: {item.dist}
               </p>
             </div>
             <span
               className="rounded-md px-2.5 py-1 font-mono text-xs font-bold"
               style={{
-                color: i === 0 ? "#fff" : "rgba(242,240,233,0.45)",
-                backgroundColor: i === 0 ? accent : "rgba(255,255,255,0.04)",
+                color: i === 0 ? "#111318" : "rgba(244,243,238,0.5)",
+                backgroundColor: i === 0 ? accent : "rgba(255,255,255,0.05)",
               }}
             >
               {item.score}
@@ -844,7 +865,7 @@ function PostOfficeVisual({ accent }: { accent: string }) {
 }
 
 /* ==================================================================
-   03. INTERACTIVE SORTING VISUALIZER SANDBOX
+03. INTERACTIVE SORTING VISUALIZER SANDBOX
 ================================================================== */
 const ALGO_INFO: Record<string, { complexity: string; label: string }> = {
   BUBBLE: { label: "BUBBLE SORT", complexity: "O(n²)" },
@@ -908,7 +929,6 @@ function SortingVisual({ accent }: { accent: string }) {
 
   return (
     <div className="flex flex-col justify-between">
-      {/* Bars Canvas */}
       <div className="flex h-[150px] items-end gap-2 border-b border-white/10 px-2 pt-4">
         {bars.map((height, index) => (
           <div
@@ -917,13 +937,12 @@ function SortingVisual({ accent }: { accent: string }) {
             style={{
               height: `${height}%`,
               backgroundColor:
-                index === activeIdx ? accent : "rgba(242,240,233,0.7)",
+                index === activeIdx ? accent : "rgba(244,243,238,0.75)",
             }}
           />
         ))}
       </div>
 
-      {/* Clickable Algorithm Selector Pills */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1.5">
           {(["BUBBLE", "MERGE", "QUICK", "HEAP"] as const).map((item) => (
@@ -934,10 +953,10 @@ function SortingVisual({ accent }: { accent: string }) {
               className="cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.15em] transition-all"
               style={{
                 borderColor:
-                  algo === item ? accent : "rgba(242,240,233,0.12)",
-                color: algo === item ? accent : "rgba(242,240,233,0.45)",
+                  algo === item ? accent : "rgba(244,243,238,0.14)",
+                color: algo === item ? accent : "rgba(244,243,238,0.5)",
                 backgroundColor:
-                  algo === item ? `${accent}15` : "transparent",
+                  algo === item ? `${accent}1A` : "transparent",
               }}
             >
               [{item}]
@@ -945,18 +964,17 @@ function SortingVisual({ accent }: { accent: string }) {
           ))}
         </div>
 
-        <span className="font-mono text-[10px] text-white/40">
-          TIME: <strong className="text-white/80">{ALGO_INFO[algo].complexity}</strong>
+        <span className="font-mono text-[10px] text-white/45">
+          TIME: <strong className="text-white/85">{ALGO_INFO[algo].complexity}</strong>
         </span>
       </div>
 
-      {/* Interactive Controls */}
       <div className="mt-5 grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={shuffleBars}
           disabled={isSorting}
-          className="cursor-pointer rounded-full border border-white/15 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-white/65 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
+          className="cursor-pointer rounded-full border border-white/15 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-white/70 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
         >
           SHUFFLE ↻
         </button>
@@ -969,7 +987,7 @@ function SortingVisual({ accent }: { accent: string }) {
           style={{
             borderColor: accent,
             backgroundColor: accent,
-            color: "#0a0a0a",
+            color: "#111318",
           }}
         >
           {isSorting ? "SORTING..." : "RUN SORT →"}

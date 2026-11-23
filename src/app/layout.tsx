@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-[#0a0a0a] font-sans text-[#f2f0e9] antialiased selection:bg-[#c8ff3d] selection:text-[#0a0a0a]">
+      <body className="bg-[#F4F3EE] font-sans text-[#111318] antialiased selection:bg-[#1D4ED8] selection:text-white">
         <CustomCursor />
         <ScrollProgress />
         <div className="noise-overlay" aria-hidden="true" />

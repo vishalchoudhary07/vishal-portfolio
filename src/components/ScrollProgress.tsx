@@ -1,3 +1,4 @@
+// src/components/ScrollProgress.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -12,7 +13,6 @@ export default function ScrollProgress() {
   useEffect(() => {
     if (!barRef.current) return;
 
-    // Set initial transform state
     gsap.set(barRef.current, { scaleX: 0, transformOrigin: "left center" });
 
     const trigger = ScrollTrigger.create({
@@ -35,10 +35,10 @@ export default function ScrollProgress() {
     <div
       ref={barRef}
       aria-hidden="true"
-      className="fixed top-0 left-0 w-full h-[2px] z-[9998] pointer-events-none will-change-transform"
+      className="pointer-events-none fixed left-0 top-0 z-[9998] h-[3px] w-full will-change-transform"
       style={{
-        background: "linear-gradient(to right, #c8ff3d, #4d59e3, #ed4059)",
-        boxShadow: "0 0 10px rgba(200, 255, 61, 0.4), 0 0 20px rgba(77, 89, 227, 0.2)",
+        background: "linear-gradient(to right, #1D4ED8, #FF4D2D)",
+        boxShadow: "0 1px 6px rgba(29, 78, 216, 0.2)",
         transformOrigin: "left center",
       }}
     />
