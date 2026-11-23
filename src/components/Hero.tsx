@@ -472,15 +472,14 @@ export default function Hero() {
           <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-[1fr_auto] md:items-end lg:mt-20">
             <div data-hero-description className="max-w-[580px]">
               <p className="text-base leading-7 text-[#5A5E6B] md:text-lg md:leading-8">
-                I engineer software across{" "}
+                Software Engineer.{" "}
                 <span className="font-semibold text-[#111318]">
-                  backend architectures
+                  Obsessed with how things work
                 </span>
                 ,{" "}
                 <span className="font-semibold text-[#111318]">
-                  AI-powered geospatial retrieval
+                  and how they feel.
                 </span>
-                , packet-level network security, and high-motion web interfaces.
               </p>
             </div>
 

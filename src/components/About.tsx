@@ -20,16 +20,11 @@ const BIO_PARAGRAPH: Array<
   | { type: "text"; text: string }
   | { type: "interactive"; word: string; trailing?: string }
 > = [
-  { type: "text", text: "I like" },
-  { type: "interactive", word: "deconstructing" },
-  { type: "text", text: "how systems work under the hood — then rebuilding them" },
-  { type: "interactive", word: "cleaner", trailing: "." },
-  {
-    type: "text",
-    text: "Whether it's evaluating live network packets in Java, ranking geospatial embeddings with FastAPI and PostGIS, or crafting responsive interfaces in Next.js, I focus on",
-  },
-  { type: "interactive", word: "precision" },
-  { type: "text", text: "from database query to pixel." },
+  { type: "text", text: "I enjoy" },
+  { type: "interactive", word: "unpacking" },
+  { type: "text", text: "complex problems and turning them into" },
+  { type: "interactive", word: "clear and dependable systems", trailing: "." },
+  
 ];
 
 /**
