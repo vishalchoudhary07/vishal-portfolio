@@ -515,20 +515,8 @@ export default function Hero() {
         data-hero-bottom
         className="relative z-10 border-t border-[#111318]/[0.1]"
       >
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] sm:flex-row sm:items-center sm:justify-between md:px-10 lg:px-14">
-          <div className="flex items-center gap-5">
-            <span className="font-semibold text-[#1D4ED8]">00 // INTRO</span>
-            <span className="hidden h-px w-10 bg-[#111318]/20 sm:block" />
-            <span>SYSTEM OVERVIEW</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6 font-medium text-[#111318]/70">
-            <span>Java</span>
-            <span>Python</span>
-            <span>FastAPI</span>
-            <span>PostGIS</span>
-            <span>Next.js</span>
-          </div>
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-6 py-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] md:px-10 lg:px-14">
+          <span className="font-semibold text-[#1D4ED8]">00 // INTRO</span>
 
           <a
             href="#about"

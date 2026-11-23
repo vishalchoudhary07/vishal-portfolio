@@ -68,7 +68,7 @@ const projects: ProjectItem[] = [
     noteText:
       "Click the algorithm pills or press RUN in the panel to test the live visualizer.",
     github: "https://github.com/vishalchoudhary07/sorting-visualizer",
-    live: "https://your-sorting-visualizer-url.com",
+    live: "https://vishalchoudhary07.github.io/sorting-visualizer/",
   },
 ];
 

@@ -71,9 +71,11 @@ function useCountUp(target: number, decimals: number = 2, duration: number = 2) 
 function TiltCard({
   children,
   className,
+  maxTilt = 15,
 }: {
   children: React.ReactNode;
   className?: string;
+  maxTilt?: number;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -85,11 +87,11 @@ function TiltCard({
     const y = (e.clientY - rect.top) / rect.height - 0.5;
 
     gsap.to(card, {
-      rotateY: x * 15,
-      rotateX: -y * 15,
+      rotateY: x * maxTilt,
+      rotateX: -y * maxTilt,
       duration: 0.4,
       ease: "power2.out",
-      transformPerspective: 800,
+      transformPerspective: 900,
     });
   };
 
@@ -158,9 +160,7 @@ function InteractiveWord({
       style={{ transformStyle: "preserve-3d" }}
     >
       {word}
-      {/* Resting subtle underline */}
       <span className="absolute -bottom-0.5 left-0 h-px w-full bg-[#1D4ED8]/30" />
-      {/* Animated underline expanding from left to right */}
       <span className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#FF4D2D] transition-transform duration-300 ease-out group-hover:scale-x-100" />
     </span>
   );
@@ -176,6 +176,7 @@ export default function About() {
   const systemMapRef = useRef<HTMLDivElement>(null);
 
   const { value: cgpaValue, ref: cgpaRef } = useCountUp(8.63, 2, 2);
+  const cgpaPercent = Math.min(Math.max((parseFloat(cgpaValue) / 10) * 100, 0), 100);
 
   useGSAP(
     () => {
@@ -203,21 +204,21 @@ export default function About() {
         );
       }
 
-      // 2. Identity badge: scale up from 0.9 with spring
+      // 2. Identity dossier card: lift & scale with spring
       if (badgeRef.current) {
         gsap.fromTo(
           badgeRef.current,
           {
-            scale: 0.9,
+            scale: 0.94,
             opacity: 0,
-            y: 25,
+            y: 30,
           },
           {
             scale: 1,
             opacity: 1,
             y: 0,
-            duration: 0.8,
-            ease: "back.out(1.7)",
+            duration: 0.85,
+            ease: "back.out(1.5)",
             scrollTrigger: {
               trigger: badgeRef.current,
               start: "top 85%",
@@ -354,35 +355,138 @@ export default function About() {
 
         {/* Main Content */}
         <div className="flex flex-1 flex-col justify-center py-16 lg:py-20">
-          {/* Identity / Education Badge with Swiss gradient border */}
-          <div
-            ref={badgeRef}
-            className="gradient-border mb-12 flex w-fit flex-col rounded-xl shadow-[0_14px_34px_-16px_rgba(17,19,24,0.18)]"
-          >
-            <div className="flex items-center gap-3 border-b border-[#111318]/[0.08] px-5 py-3">
-              <span className="relative flex h-2 w-2 items-center justify-center">
-                <span className="absolute h-full w-full animate-ping rounded-full bg-[#FF4D2D] opacity-40" />
-                <span className="h-1.5 w-1.5 rounded-full bg-[#FF4D2D]" />
-              </span>
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#111318]">
-                VISHAL CHOUDHARY
-              </span>
-            </div>
+          {/* =====================================================
+              SWISS ENGINEERING IDENTITY DOSSIER CARD
+          ===================================================== */}
+          <div ref={badgeRef} className="mb-14 w-full max-w-[780px]">
+            <TiltCard
+              maxTilt={6}
+              className="group relative overflow-hidden rounded-2xl border border-[#111318]/15 bg-white shadow-[0_22px_50px_-24px_rgba(17,19,24,0.22)] transition-all duration-300 hover:border-[#1D4ED8]/50 hover:shadow-[0_28px_60px_-22px_rgba(29,78,216,0.22)]"
+            >
+              {/* Top Cobalt -> Signal Orange Precision Accent Bar */}
+              <div
+                aria-hidden="true"
+                className="h-[3px] w-full bg-gradient-to-r from-[#1D4ED8] via-[#1D4ED8] to-[#FF4D2D]"
+              />
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5A5E6B] sm:flex-nowrap">
-              <span className="font-medium text-[#111318]/80">B.TECH CSIT // 2026</span>
-              <span className="hidden h-3 w-px bg-[#111318]/15 sm:block" />
-              <span
-                className="cursor-help transition-colors hover:text-[#111318]"
-                title="Marri Laxman Reddy Institute of Technology and Management"
-              >
-                MLRITM, HYDERABAD
-              </span>
-              <span className="hidden h-3 w-px bg-[#111318]/15 sm:block" />
-              <span className="font-bold text-[#1D4ED8]">
-                CGPA: <span ref={cgpaRef}>{cgpaValue}</span>
-              </span>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_240px]">
+                {/* Left Panel: Architectural Identity Spec */}
+                <div className="relative flex flex-col justify-between p-6 sm:p-7">
+                  {/* Top Metadata Strip */}
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+                        <span className="absolute h-full w-full animate-ping rounded-full bg-[#FF4D2D] opacity-45" />
+                        <span className="h-2 w-2 rounded-full bg-[#FF4D2D]" />
+                      </span>
+                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-[#5A5E6B]">
+                        
+                      </span>
+                    </div>
+
+                    <span className="rounded-full border border-[#111318]/12 bg-[#F4F3EE] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#111318]/75">
+                      CLASS OF 2026
+                    </span>
+                  </div>
+
+                  {/* Engineer Name */}
+                  <div className="mt-5">
+                    <div className="text-2xl font-black tracking-[-0.04em] text-[#111318] sm:text-[30px]">
+                      VISHAL CHOUDHARY
+                      <span className="text-[#FF4D2D]">.</span>
+                    </div>
+                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.2em] text-[#1D4ED8]">
+                      SOFTWARE ENGINEER // SYSTEMS &amp; AI
+                    </p>
+                  </div>
+
+                  {/* Structured Education Spec Grid */}
+                  <div className="mt-6 grid grid-cols-1 gap-4 border-t border-[#111318]/[0.08] pt-5 sm:grid-cols-2">
+                    <div>
+                      <span className="block font-mono text-[9px] uppercase tracking-[0.24em] text-[#5A5E6B]">
+                        DEGREE // TRACK
+                      </span>
+                      <span className="mt-1 block font-mono text-xs font-bold tracking-[0.08em] text-[#111318]">
+                        B.TECH CSIT
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="block font-mono text-[9px] uppercase tracking-[0.24em] text-[#5A5E6B]">
+                        INSTITUTION
+                      </span>
+                      <span
+                        title="Marri Laxman Reddy Institute of Technology and Management"
+                        className="mt-1 inline-block cursor-help font-mono text-xs font-bold tracking-[0.06em] text-[#111318] underline decoration-[#111318]/25 decoration-dotted underline-offset-4 transition-colors hover:text-[#1D4ED8] hover:decoration-[#1D4ED8]"
+                      >
+                        MLRITM, HYDERABAD
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Panel: Embedded Dark Telemetry Readout for CGPA */}
+                <div className="relative flex flex-col justify-between overflow-hidden border-t border-[#111318]/10 bg-[#111318] p-6 text-[#F4F3EE] sm:p-7 md:border-l md:border-t-0">
+                  {/* Subtle internal micro-grid */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
+                      backgroundSize: "20px 20px",
+                    }}
+                  />
+
+                  {/* Top Readout Header */}
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/45">
+                      ACADEMIC_IDX
+                    </span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#60A5FA] shadow-[0_0_8px_#60A5FA]" />
+                  </div>
+
+                  {/* Animated CGPA Value */}
+                  <div className="relative z-10 my-5 md:my-0">
+                    <div className="flex items-baseline gap-1.5">
+                      <span
+                        ref={cgpaRef}
+                        className="font-mono text-4xl font-black tracking-[-0.04em] text-white tabular-nums sm:text-[42px]"
+                      >
+                        {cgpaValue}
+                      </span>
+                      <span className="font-mono text-xs text-white/40">
+                        / 10.0
+                      </span>
+                    </div>
+                    <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.2em] text-[#60A5FA]">
+                      CUMULATIVE CGPA
+                    </span>
+                  </div>
+
+                  {/* Precision Progress Gauge */}
+                  <div className="relative z-10">
+                    <div className="mb-1.5 flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/45">
+                      <span>INDEX SCALE</span>
+                      <span className="font-semibold text-white/80 tabular-nums">
+                        {cgpaPercent.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-[#1D4ED8] via-[#60A5FA] to-[#FF4D2D]"
+                        style={{ width: `${cgpaPercent}%` }}
+                      />
+                    </div>
+                    <div className="mt-1.5 flex justify-between font-mono text-[8px] text-white/25">
+                      <span>0.0</span>
+                      <span>5.0</span>
+                      <span>10.0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TiltCard>
           </div>
 
           {/* Headline with curtain-lift line-by-line reveal */}
