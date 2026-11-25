@@ -2,7 +2,7 @@
 
 A modern, interactive developer portfolio built with Next.js (App Router) and TypeScript. Designed with smooth scrolling, custom cursor interactions, and dedicated sections to showcase skills, projects, and contact details.
 
-**[Live Demo]()**
+**[Live Demo](https://vishalchoudhary07.github.io/vishal-portfolio/)**
 
 ## Tech Stack
 
